@@ -1,0 +1,33 @@
+version: '3.5'
+
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    hostname: "rabbitmq"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    labels:
+      NAME: "rabbitmq1"
+    networks:
+      - iologservice
+
+  mongodb:
+    image: mongo
+    hostname: "mongodb"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongodb
+      MONGO_INITDB_ROOT_PASSWORD: mongodb
+    ports:
+      - 27017:27017
+    networks:
+      - iologservice
+
+networks:
+  iologservice:
+    name: iologservice
