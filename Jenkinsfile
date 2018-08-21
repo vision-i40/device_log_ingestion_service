@@ -6,7 +6,7 @@ pipeline {
 
   }
   stages {
-    stage('') {
+    stage('Unit tests') {
       steps {
         sh 'sbt unit'
       }
