@@ -32,5 +32,5 @@ services:
       - io_log_ingestion_manager
 
 networks:
-  iologservice:
+  io_log_ingestion_manager:
     name: io_log_ingestion_manager
