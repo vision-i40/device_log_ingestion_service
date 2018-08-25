@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'gcr.io/rich-atom-211704/scala-sbt:scala-2.12-2'
+      image 'gcr.io/rich-atom-211704/scala-sbt:scala-2.12-3'
     }
   }
 
