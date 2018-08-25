@@ -1,14 +1,18 @@
-package unit.io_log_ingestion
+package unit.infrastructure.parsing
 
-import java.time.LocalDateTime
-import io_log_ingestion.{IngestionEvent, ParseIngestionEvent}
+import infrastructure.IngestionEvent
+import infrastructure.parsing.ParseIngestionEvent
+import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.{FlatSpec, Matchers}
 import scala.util.Try
 
 class IngestionEventTest extends FlatSpec with Matchers {
+  DateTimeZone.setDefault(DateTimeZone.UTC)
+
   val expectedTraceId: String = "a-trace-id"
+  val expectedDeviceId: String = "a-device-id"
   val expectedLog: String = "a-log-event-plain-text"
-  val expectedReceivedAt: LocalDateTime = LocalDateTime.now
+  val expectedReceivedAt: DateTime = new DateTime(DateTime.now.getMillis)
 
   behavior of "valid ingestion event"
   it should "properly parse valid ingestion event" in {
@@ -16,7 +20,8 @@ class IngestionEventTest extends FlatSpec with Matchers {
       s"""
          |{
          |   "traceId": "$expectedTraceId",
-         |   "log": "$expectedLog",
+         |   "deviceId": "$expectedDeviceId",
+         |   "rawLog": "$expectedLog",
          |   "receivedAt": "${expectedReceivedAt.toString}"
          |}
        """.stripMargin
@@ -28,7 +33,8 @@ class IngestionEventTest extends FlatSpec with Matchers {
     val actualIngestionEvent = tryActualIngestionEvent.get
 
     actualIngestionEvent.traceId shouldEqual expectedTraceId
-    actualIngestionEvent.log shouldEqual expectedLog
+    actualIngestionEvent.deviceId shouldEqual expectedDeviceId
+    actualIngestionEvent.rawLog shouldEqual expectedLog
     actualIngestionEvent.receivedAt shouldEqual expectedReceivedAt
   }
 
@@ -37,7 +43,7 @@ class IngestionEventTest extends FlatSpec with Matchers {
     val ingestionEventJsonString =
       s"""
          |{
-         |   "log": "$expectedLog",
+         |   "rawLog": "$expectedLog",
          |   "receivedAt": "${expectedReceivedAt.toString}"
          |}
        """.stripMargin
@@ -66,7 +72,7 @@ class IngestionEventTest extends FlatSpec with Matchers {
       s"""
          |{
          |  "traceId": "$expectedTraceId",
-         |  "log": "$expectedLog",
+         |  "rawLog": "$expectedLog",
          |}
        """.stripMargin
 

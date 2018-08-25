@@ -1,14 +1,23 @@
 package io_log_ingestion
 
-import java.time.LocalDateTime
+import infrastructure.mongodb.Connection
+import infrastructure.mongodb.serialization.IOLogBSONHandler
+import reactivemongo.api.collections.bson.BSONCollection
+import reactivemongo.api.commands.WriteResult
 
+import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-sealed case class IOLog(id: String, traceId: String, log: String, receivedAt: LocalDateTime)
+trait IOLogRepository extends IOLogBSONHandler {
+  val collectionName = "io_logs"
+  private val ioLogCollection: Future[BSONCollection] = Connection().collection(collectionName)
 
-trait IOLogRepository {
-  def save(ingestionEvent: IngestionEvent): Future[IOLog] = {
-    null
+  def save(ioLog: IOLog): Future[IOLog] = {
+    ioLogCollection.flatMap { collection =>
+      collection
+        .insert(ioLog)
+        .map(_ => ioLog)
+    }
   }
 }
 

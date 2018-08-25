@@ -1,12 +1,17 @@
 package io_log_ingestion
 
-import com.google.inject.Singleton
 import config.RabbitMQConfig
 import infrastructure.QueueSubscriber
+import infrastructure.parsing.ParseIngestionEvent
 
-@Singleton
-class IOLogIngestionSubscriber extends QueueSubscriber {
+import scala.util.Try
+
+object IOLogIngestionSubscriber {
   implicit private val config: RabbitMQConfig = RabbitMQConfig()
+  implicit private val repository: IOLogRepository = IOLogRepository
 
-//  subscribe(IngestIOLog(_))
+  def apply(): Try[String] = QueueSubscriber().subscribe { message =>
+    ParseIngestionEvent(message)
+      .map(IngestIOLog(_))
+  }
 }

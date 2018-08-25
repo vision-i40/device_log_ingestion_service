@@ -4,7 +4,7 @@ import com.rabbitmq.client._
 import config.RabbitMQConfig
 import scala.util.Try
 
-trait QueueSubscriber {
+class QueueSubscriber {
   def subscribe(callback: String => Unit)(implicit config: RabbitMQConfig): Try[String] = {
     connect(config)
       .flatMap(createChannel)
@@ -40,4 +40,6 @@ trait QueueSubscriber {
   }
 }
 
-object QueueSubscriber extends QueueSubscriber
+object QueueSubscriber {
+  def apply(): QueueSubscriber = new QueueSubscriber()
+}

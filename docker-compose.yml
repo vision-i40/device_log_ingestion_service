@@ -4,6 +4,7 @@ services:
   rabbitmq:
     image: "rabbitmq:3-management"
     hostname: "rabbitmq"
+    container_name: "io_log_ingestion_rabbitmq"
     environment:
       RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
       RABBITMQ_DEFAULT_USER: "rabbitmq"
@@ -15,19 +16,21 @@ services:
     labels:
       NAME: "rabbitmq1"
     networks:
-      - iologservice
+      - io_log_ingestion_manager
 
   mongodb:
     image: mongo
     hostname: "mongodb"
+    container_name: "io_log_ingestion_mongo"
     environment:
       MONGO_INITDB_ROOT_USERNAME: mongodb
       MONGO_INITDB_ROOT_PASSWORD: mongodb
+      MONGO_INITDB_DATABASE: io_logs
     ports:
       - 27017:27017
     networks:
-      - iologservice
+      - io_log_ingestion_manager
 
 networks:
   iologservice:
-    name: iologservice
+    name: io_log_ingestion_manager

@@ -1,8 +1,9 @@
 package infrastructure
 
-import java.time.LocalDateTime
+import org.joda.time.DateTime
 
 trait QueueEvent {
   val traceId: String
-  val receivedAt: LocalDateTime
+  val deviceId: String
+  val receivedAt: DateTime
 }

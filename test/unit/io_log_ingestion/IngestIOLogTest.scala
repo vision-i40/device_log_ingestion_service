@@ -1,51 +1,38 @@
 package unit.io_log_ingestion
 
-import java.time.LocalDateTime
-
+import common.builders.IngestionEventBuilder
+import infrastructure.IngestionEvent
 import io_log_ingestion._
+import org.joda.time.{DateTime, DateTimeZone}
+import org.mockito.Matchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.{when, _}
+import org.scalatest.concurrent.Eventually.eventually
 import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{AsyncFlatSpec, BeforeAndAfterEach, Matchers}
-import scala.concurrent.ExecutionContext.Implicits.global
+import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
+
 import scala.concurrent.Future
-import scala.util.Try
 
-class IngestIOLogTest extends AsyncFlatSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
-  val expectedTraceId: String = "a-trace-id"
-  val expectedLog: String = "a-log-event-plain-text"
-  val expectedReceivedAt: LocalDateTime = LocalDateTime.now
-  val ingestionEventJsonString =
-    s"""
-       |{
-       |   "traceId": "$expectedTraceId",
-       |   "log": "$expectedLog",
-       |   "receivedAt": "${expectedReceivedAt.toString}"
-       |}
-       """.stripMargin
+class IngestIOLogTest extends FlatSpec with Matchers with MockitoSugar with BeforeAndAfterEach {
+  DateTimeZone.setDefault(DateTimeZone.UTC)
 
-  val iOLogMock = mock[IOLog]
-  val ingestionEventMock = mock[IngestionEvent]
-  val parseIngestionEvent: ParseIngestionEvent = mock[ParseIngestionEvent]
-  val storeIOLogMock: IOLogRepository = mock[IOLogRepository]
-
+  val ingestionEvent: IngestionEvent = IngestionEventBuilder().build
+  val iOLogMock: IOLog = mock[IOLog]
+  val ingestionEventMock: IngestionEvent = mock[IngestionEvent]
+  val ioLogRepository: IOLogRepository = mock[IOLogRepository]
 
   override def beforeEach(): Unit = {
-    Mockito.reset(parseIngestionEvent, storeIOLogMock)
+    Mockito.reset(ioLogRepository)
 
-    when(parseIngestionEvent.apply(ingestionEventJsonString)).thenReturn(Try(ingestionEventMock))
-    when(storeIOLogMock.save(ingestionEventMock)).thenReturn(Future.successful(iOLogMock))
+    when(ioLogRepository.save(any[IOLog])).thenReturn(Future.successful(iOLogMock))
   }
 
-  behavior of "ingest json log"
-  it should "should call store IO Log in IO Log repository" in {
-    val actualIOLog: Future[IOLog] = IngestIOLog(ingestionEventJsonString)(storeIOLogMock, parseIngestionEvent)
+  behavior of "ingest event"
+  it should "call io log repository" in {
+    IngestIOLog(ingestionEvent)(ioLogRepository)
 
-    actualIOLog.map{ ioLog: IOLog =>
-      verify(parseIngestionEvent, times(1)).apply(ingestionEventJsonString)
-      verify(storeIOLogMock, times(1)).save(ingestionEventMock)
-
-      ioLog shouldEqual iOLogMock
+    eventually {
+      verify(ioLogRepository, times(1)).save(any[IOLog])
     }
   }
 

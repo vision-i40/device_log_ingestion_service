@@ -9,7 +9,7 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 
 class QueueSubscriberTest extends FlatSpec with Matchers with MockitoSugar with BeforeAndAfterAll {
-  implicit private val config = RabbitMQConfig()
+  implicit private val config: RabbitMQConfig = RabbitMQConfig()
 
   val message = """{"a": "json-message"}"""
 
@@ -23,7 +23,7 @@ class QueueSubscriberTest extends FlatSpec with Matchers with MockitoSugar with 
     QueueHelper.publish(message = message)
     val callbackMock = mock[String => Unit]
 
-    QueueSubscriber.subscribe(callbackMock)
+    QueueSubscriber().subscribe(callbackMock)
 
     eventually {
       verify(callbackMock, times(1)).apply(message)
