@@ -27,11 +27,11 @@ pipeline {
         sh 'docker network connect $CONTAINER_NETWORK  $(head -1 /proc/self/cgroup|cut -d/ -f3)'
         sh '''
             export RABBITMQ_IP=$(docker inspect $RABBITMQ_CONTAINER_NAME -f "{{ .NetworkSettings.Networks.$CONTAINER_NETWORK.IPAddress }}")
-            ./scripts/waitForConnection $RABBITMQ_IP $RABBITMQ_CONTAINER_PORT
+            ./scripts/waitForConnection.sh $RABBITMQ_IP $RABBITMQ_CONTAINER_PORT
         '''
         sh '''
             export MONGODB_IP=$(docker inspect $MONGODB_CONTAINER_NAME -f "{{ .NetworkSettings.Networks.$CONTAINER_NETWORK.IPAddress }}")
-            ./scripts/waitForConnection $MONGODB_IP $MONGODB_CONTAINER_PORT
+            ./scripts/waitForConnection.sh $MONGODB_IP $MONGODB_CONTAINER_PORT
         '''
       }
     }
