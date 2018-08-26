@@ -8,7 +8,7 @@ pipeline {
   environment {
     CONTAINER_NAME = 'io_log_ingestion_manager_10_$BUILD_NUMBER'
     CONTAINER_TAG = 'io_log_ingestion_manager-1.0:$BUILD_NUMBER'
-    CONTAINER_NETWORK = 'io_log_ingestion_manager'
+    CONTAINER_NETWORK = 'io_log_ingestion_manager_network'
     RABBITMQ_CONTAINER_NAME = 'io_log_ingestion_rabbitmq'
     RABBITMQ_CONTAINER_PORT = '5672'
     MONGODB_CONTAINER_NAME = 'io_log_ingestion_mongo'

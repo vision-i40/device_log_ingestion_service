@@ -2,12 +2,14 @@ package config
 
 import com.typesafe.config.{Config, ConfigFactory}
 
+import scala.util.{Success, Try}
+
 sealed case class MongoDBConfig(
   host: String,
   port: Int,
   db: String,
-  username: String,
-  password: String
+  username: Option[String],
+  password: Option[String]
 )
 
 object MongoDBConfig {
@@ -23,8 +25,18 @@ object MongoDBConfig {
       host = config.getString(HOST),
       port = config.getInt(PORT),
       db = config.getString(DB),
-      username = config.getString(USERNAME),
-      password = config.getString(PASSWORD)
+      username = getUsername(config),
+      password = getPassword(config)
     )
+  }
+
+  def getUsername(config: Config): Option[String] = Try(config.getString(USERNAME)) match {
+    case Success(username: String) => Some(username)
+    case _ => None
+  }
+
+  def getPassword(config: Config): Option[String] = Try(config.getString(PASSWORD)) match {
+    case Success(password: String) => Some(password)
+    case _ => None
   }
 }

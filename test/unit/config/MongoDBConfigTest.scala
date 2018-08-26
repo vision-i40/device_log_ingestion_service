@@ -29,8 +29,6 @@ class MongoDBConfigTest extends FlatSpec with Matchers with MockitoSugar with Be
     when(config.getString(HOST)).thenReturn(host)
     when(config.getInt(PORT)).thenReturn(port)
     when(config.getString(DB)).thenReturn(db)
-    when(config.getString(USERNAME)).thenReturn(username)
-    when(config.getString(PASSWORD)).thenReturn(password)
   }
 
   behavior of "MongoDB Config"
@@ -56,16 +54,34 @@ class MongoDBConfigTest extends FlatSpec with Matchers with MockitoSugar with Be
   }
 
   it should "get username config value" in {
+    when(config.getString(USERNAME)).thenReturn(username)
+
     val mongoDbConfig: MongoDBConfig = MongoDBConfig(config)
 
     verify(config, times(1)).getString(USERNAME)
-    mongoDbConfig.username shouldEqual username
+    mongoDbConfig.username shouldEqual Some(username)
   }
 
   it should "get password config value" in {
+    when(config.getString(PASSWORD)).thenReturn(password)
+
     val mongoDbConfig: MongoDBConfig = MongoDBConfig(config)
 
     verify(config, times(1)).getString(PASSWORD)
-    mongoDbConfig.password shouldEqual password
+    mongoDbConfig.password shouldEqual Some(password)
+  }
+
+  it should "return None when username config value is not provided" in {
+    val mongoDbConfig: MongoDBConfig = MongoDBConfig(config)
+
+    verify(config, times(1)).getString(USERNAME)
+    mongoDbConfig.username shouldEqual None
+  }
+
+  it should "return None when password config value is not provided" in {
+    val mongoDbConfig: MongoDBConfig = MongoDBConfig(config)
+
+    verify(config, times(1)).getString(PASSWORD)
+    mongoDbConfig.password shouldEqual None
   }
 }

@@ -23,10 +23,17 @@ object Connection {
   val config: MongoDBConfig = MongoDBConfig()
 
   def apply(): Connection = {
-    new Connection(buildMongoDBUrl(config), config.db)
+    new Connection(buildMongoDBUrl, config.db)
   }
 
-  private def buildMongoDBUrl(config: MongoDBConfig): String = {
-    s"mongodb://${config.username}:${config.password}@${config.host}:${config.port}/${config.db}"
+  private def buildMongoDBUrl: String = {
+    s"mongodb://$buildUserAndPassword${config.host}/${config.db}"
+  }
+
+  private def buildUserAndPassword: String = {
+    (config.username, config.password) match {
+      case (Some(username), Some(password)) => s"$username:$password@"
+      case _ => ""
+    }
   }
 }

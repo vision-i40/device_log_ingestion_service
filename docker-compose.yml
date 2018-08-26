@@ -16,21 +16,17 @@ services:
     labels:
       NAME: "rabbitmq1"
     networks:
-      - io_log_ingestion_manager
+      - io_log_ingestion_manager_network
 
   mongodb:
-    image: mongo
+    image: mongo:3.6
     hostname: "mongodb"
     container_name: "io_log_ingestion_mongo"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongodb
-      MONGO_INITDB_ROOT_PASSWORD: mongodb
-      MONGO_INITDB_DATABASE: io_logs
     ports:
       - 27017:27017
     networks:
-      - io_log_ingestion_manager
+      - io_log_ingestion_manager_network
 
 networks:
-  io_log_ingestion_manager:
-    name: io_log_ingestion_manager
+  io_log_ingestion_manager_network:
+    name: io_log_ingestion_manager_network
