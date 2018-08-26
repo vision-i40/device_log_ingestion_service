@@ -43,19 +43,19 @@ pipeline {
             sbt coverage unit integration
           '''
         sh 'sbt coverageReport'
-        post {
-          success {
-            archiveArtifacts 'target/scala-2.11/scoverage-report/**/*'
-          }
+      }
+      post {
+        success {
+          archiveArtifacts 'target/scala-2.11/scoverage-report/**/*'
         }
       }
     }
   }
 
   post {
-      always {
-        sh 'docker network disconnect $CONTAINER_NETWORK $(head -1 /proc/self/cgroup|cut -d/ -f3) || true'
-        sh 'docker-compose down --rmi all'
-      }
+    always {
+      sh 'docker network disconnect $CONTAINER_NETWORK $(head -1 /proc/self/cgroup|cut -d/ -f3) || true'
+      sh 'docker-compose down --rmi all'
     }
+  }
 }
