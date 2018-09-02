@@ -34,6 +34,14 @@ object MongoDBHelper extends IOLogBSONHandler {
         .sort(BSONDocument("_id" -> -1))
         .one[IOLog]
     }
+  }
 
+  def getByDeviceId(deviceId: String): Future[Option[IOLog]] = {
+    collectionFuture.flatMap { collection =>
+      collection
+        .find(BSONDocument("deviceId" -> deviceId))
+        .sort(BSONDocument("_id" -> -1))
+        .one[IOLog]
+    }
   }
 }

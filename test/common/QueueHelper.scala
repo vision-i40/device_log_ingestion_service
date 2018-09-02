@@ -8,24 +8,22 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object QueueHelper {
+  private val config: RabbitMQConfig = RabbitMQConfig()
   private val EXCHANGE_NAME: String = "io_log_exchange_test"
   private val EXCHANGE_TYPE: String = "direct"
   private val ROUTING_KEY: String = "io_log.ingestion"
-  private val config: RabbitMQConfig = RabbitMQConfig()
   private val connection: Connection = connect()
   private val channel: Channel = connection.createChannel()
 
-  def publish(message: String): Future[Unit] = {
+  def publish(message: String): Unit = {
     val messageBodyBytes = message.getBytes
 
     val amqpProperties = new BasicProperties.Builder()
       .contentType(MimeTypes.JSON)
-      .priority(1)
+      .priority(10)
       .build()
 
-    Future {
-      channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY, amqpProperties, messageBodyBytes)
-    }
+    channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY, amqpProperties, messageBodyBytes)
   }
 
   def setupExchange: (Exchange.DeclareOk, Queue.DeclareOk, Queue.BindOk) = {
@@ -38,11 +36,8 @@ object QueueHelper {
 
   def countMessages(queueName: String): Long = channel.messageCount(queueName)
 
-  def reset: (Exchange.DeleteOk, Queue.DeleteOk) = {
-    (
-      channel.exchangeDelete(EXCHANGE_NAME),
-      channel.queueDelete(config.queue.name)
-    )
+  def reset: Queue.PurgeOk = {
+    channel.queuePurge(config.queue.name)
   }
 
   private def connect(): Connection = {

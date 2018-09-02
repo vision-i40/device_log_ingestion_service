@@ -6,6 +6,7 @@ pipeline {
   }
 
   environment {
+    PROJECT_ID = 'rich-atom-211704'
     CONTAINER_NAME = 'io_log_ingestion_manager_10_$BUILD_NUMBER'
     CONTAINER_TAG = 'io_log_ingestion_manager-1.0:$BUILD_NUMBER'
     CONTAINER_NETWORK = 'io_log_ingestion_manager_network'
@@ -50,12 +51,58 @@ pipeline {
         }
       }
     }
+    stage('Build Docker Container') {
+      steps {
+        sh 'sbt dist'
+        sh '''
+            unzip target/universal/io_log_ingestion_manager-1.0*.zip -d containers/artifact/
+            cd containers/artifact/
+            mv io_log_ingestion_manager-1.0* io_log_ingestion_manager-1.0
+            docker build -t gcr.io/$PROJECT_ID/$CONTAINER_TAG .
+        '''
+      }
+    }
+    stage('Functional Tests') {
+      steps {
+        sh '''
+            export RABBITMQ_IP=$(docker inspect $RABBITMQ_CONTAINER_NAME -f "{{ .NetworkSettings.Networks.$CONTAINER_NETWORK.IPAddress }}")
+            export MONGODB_IP=$(docker inspect $MONGODB_CONTAINER_NAME -f "{{ .NetworkSettings.Networks.$CONTAINER_NETWORK.IPAddress }}")
+
+            export IO_LOG_INGESTION_MANAGER_PORT=9000
+
+            docker run -d --rm -p80:80 --network=$CONTAINER_NETWORK --name=$CONTAINER_NAME \
+                   --env RABBITMQ_HOST=$RABBITMQ_IP \
+                   gcr.io/$PROJECT_ID/$CONTAINER_TAG
+
+            export IO_LOG_INGESTION_MANAGER_HOST=$(docker inspect $CONTAINER_NAME -f "{{ .NetworkSettings.Networks.$CONTAINER_NETWORK.IPAddress }}")
+
+            ./scripts/waitForConnection.sh $IO_LOG_INGESTION_MANAGER_HOST $IO_LOG_INGESTION_MANAGER_PORT
+
+            env JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
+          '''
+        sh ''
+      }
+      post {
+        success {
+          archiveArtifacts 'target/test-reports/**/*'
+        }
+      }
+    }
+    stage('Register Container Build') {
+      steps {
+        sh 'gcloud auth activate-service-account --key-file $GCLOUD_CREDENTIALS'
+        sh 'gcloud auth configure-docker --quiet'
+        sh 'docker push gcr.io/$PROJECT_ID/$CONTAINER_TAG'
+      }
+    }
   }
 
   post {
     always {
       sh 'docker network disconnect $CONTAINER_NETWORK $(head -1 /proc/self/cgroup|cut -d/ -f3) || true'
+      sh 'docker stop $CONTAINER_NAME || true && docker rm $CONTAINER_NAME  || true'
       sh 'docker-compose down --rmi all'
+      sh 'docker rmi $(docker images --filter="reference=$CONTAINER_TAG" --format "{{.ID}}" -q) || true'
     }
   }
 }
