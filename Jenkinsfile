@@ -7,8 +7,8 @@ pipeline {
 
   environment {
     PROJECT_ID = 'rich-atom-211704'
-    CONTAINER_NAME = 'io_log_ingestion_manager_10_$BUILD_NUMBER'
-    CONTAINER_TAG = 'io_log_ingestion_manager-1.0:$BUILD_NUMBER'
+    CONTAINER_NAME = "io_log_ingestion_manager_10_$BUILD_NUMBER"
+    CONTAINER_TAG = "io_log_ingestion_manager-1.0:$BUILD_NUMBER"
     CONTAINER_NETWORK = 'io_log_ingestion_manager_network'
     RABBITMQ_CONTAINER_NAME = 'io_log_ingestion_rabbitmq'
     RABBITMQ_CONTAINER_PORT = '5672'
