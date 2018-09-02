@@ -78,7 +78,7 @@ pipeline {
             export RABBITMQ_QUEUE_NAME="ingestion_queue_functional"
             export RABBITMQ_ROUTING_KEY="io_log.ingestion"
 
-            docker run -d --rm -p80:80 --network=$CONTAINER_NETWORK --name=$CONTAINER_NAME \
+            docker run -d --rm -p9000:9000 --network=$CONTAINER_NETWORK --name=$CONTAINER_NAME \
                    --env MONGODB_IP=$MONGODB_IP \
                    --env MONGODB_PORT=$MONGODB_PORT \
                    --env MONGODB_DB=$MONGODB_DB \
