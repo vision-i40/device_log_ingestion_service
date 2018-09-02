@@ -14,8 +14,8 @@ class QueueSubscriberTest extends FlatSpec with Matchers with MockitoSugar with 
   val message = """{"a": "json-message"}"""
 
   override def beforeAll(): Unit = {
+    QueueHelper.setupExchange()
     QueueHelper.reset
-    QueueHelper.setupExchange
   }
 
   behavior of "Receiving a single message on the queue"

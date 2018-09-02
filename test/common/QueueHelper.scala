@@ -26,7 +26,7 @@ object QueueHelper {
     channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY, amqpProperties, messageBodyBytes)
   }
 
-  def setupExchange: (Exchange.DeclareOk, Queue.DeclareOk, Queue.BindOk) = {
+  def setupExchange(): (Exchange.DeclareOk, Queue.DeclareOk, Queue.BindOk) = {
     (
       channel.exchangeDeclare(EXCHANGE_NAME, EXCHANGE_TYPE, true),
       channel.queueDeclare(config.queue.name, true, false, false, null),

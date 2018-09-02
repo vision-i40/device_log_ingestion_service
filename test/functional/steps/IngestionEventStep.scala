@@ -34,7 +34,7 @@ class IngestionEventStep extends ScalaDsl with Matchers with EN with ParseIngest
   private val unknownRawLog: String = "a-unidentified-log"
   private val unknownIngestionEvent: IngestionEvent = IngestionEventBuilder(rawLog = unknownRawLog).build
 
-  QueueHelper.setupExchange
+  QueueHelper.setupExchange()
   QueueHelper.reset
   MongoDBHelper.reset
 
