@@ -12,9 +12,9 @@ import org.scalatest.Matchers
 import play.api.libs.json.Json
 import scalaj.http.{Http, HttpResponse}
 import org.scalatest.concurrent.Eventually.{eventually, interval, timeout}
-
 import scala.concurrent.duration._
 import scala.concurrent.Await
+import scala.language.postfixOps
 
 class IngestionEventStep extends ScalaDsl with Matchers with EN with ParseIngestionEvent {
   private val config = ConfigFactory.load()

@@ -9,6 +9,7 @@ import reactivemongo.bson.BSONDocument
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
+import scala.language.postfixOps
 
 object MongoDBHelper extends IOLogBSONHandler {
   val collectionName = "io_logs"
@@ -18,19 +19,29 @@ object MongoDBHelper extends IOLogBSONHandler {
   private val parsedUri = MongoConnection.parseURI(s"mongodb://${config.host}:${config.port}/${config.db}")
   private val db: Future[DefaultDB] = Future.fromTry(parsedUri.map(driver.connection)).flatMap(_.database(config.db))
   private val collectionFuture = db.map((db: DefaultDB) => db[BSONCollection](collectionName))
+  private val projection = Some(BSONDocument(
+    "traceId" -> 1,
+    "deviceId" -> 1,
+    "rawLog" -> 1,
+    "deviceLogInfo" -> 1,
+    "detectedDevice" -> 1,
+    "receivedAt" -> 1,
+    "savedAt" -> 1
+  ))
 
   def reset: Boolean = {
-    Await.result(collectionFuture.flatMap(_.drop(false)), 10 seconds)
+    Await.result(collectionFuture.flatMap(_.drop(failIfNotFound = false)), 10 seconds)
   }
 
-  def setupCollection: Unit = {
+  def setupCollection(): Unit = {
     Await.result(collectionFuture.flatMap(_.create), 10 seconds)
   }
 
   def getLast: Future[Option[IOLog]] = {
     collectionFuture.flatMap { collection =>
+
       collection
-        .find(BSONDocument())
+        .find(BSONDocument(), projection)
         .sort(BSONDocument("_id" -> -1))
         .one[IOLog]
     }
@@ -39,7 +50,7 @@ object MongoDBHelper extends IOLogBSONHandler {
   def getByDeviceId(deviceId: String): Future[Option[IOLog]] = {
     collectionFuture.flatMap { collection =>
       collection
-        .find(BSONDocument("deviceId" -> deviceId))
+        .find(BSONDocument("deviceId" -> deviceId), projection)
         .sort(BSONDocument("_id" -> -1))
         .one[IOLog]
     }

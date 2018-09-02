@@ -69,9 +69,26 @@ pipeline {
             export MONGODB_IP=$(docker inspect $MONGODB_CONTAINER_NAME -f "{{ .NetworkSettings.Networks.$CONTAINER_NETWORK.IPAddress }}")
 
             export IO_LOG_INGESTION_MANAGER_PORT=9000
+            export MONGODB_PORT=27017
+            export MONGODB_DB="io_logs_functional"
+            export RABBITMQ_PORT=5672
+            export RABBITMQ_VIRTUAL_HOST="/"
+            export RABBITMQ_USER="rabbitmq"
+            export RABBITMQ_PASSWORD="rabbitmq"
+            export RABBITMQ_QUEUE_NAME="ingestion_queue_functional"
+            export RABBITMQ_ROUTING_KEY="io_log.ingestion"
 
             docker run -d --rm -p80:80 --network=$CONTAINER_NETWORK --name=$CONTAINER_NAME \
+                   --env MONGODB_IP=$MONGODB_IP \
+                   --env MONGODB_PORT=$MONGODB_PORT \
+                   --env MONGODB_DB=$MONGODB_DB \
                    --env RABBITMQ_HOST=$RABBITMQ_IP \
+                   --env RABBITMQ_PORT=$RABBITMQ_PORT \
+                   --env RABBITMQ_VIRTUAL_HOST=$RABBITMQ_VIRTUAL_HOST \
+                   --env RABBITMQ_USER=$RABBITMQ_USER \
+                   --env RABBITMQ_PASSWORD=$RABBITMQ_PASSWORD \
+                   --env RABBITMQ_QUEUE_NAME=$RABBITMQ_QUEUE_NAME \
+                   --env RABBITMQ_ROUTING_KEY=$RABBITMQ_ROUTING_KEY \
                    gcr.io/$PROJECT_ID/$CONTAINER_TAG
 
             export IO_LOG_INGESTION_MANAGER_HOST=$(docker inspect $CONTAINER_NAME -f "{{ .NetworkSettings.Networks.$CONTAINER_NETWORK.IPAddress }}")

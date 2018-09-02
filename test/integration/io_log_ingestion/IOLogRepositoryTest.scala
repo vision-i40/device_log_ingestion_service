@@ -9,7 +9,7 @@ class IOLogRepositoryTest extends AsyncFlatSpec with Matchers with BeforeAndAfte
 
   override def beforeEach: Unit = {
     MongoDBHelper.reset
-    MongoDBHelper.setupCollection
+    MongoDBHelper.setupCollection()
   }
 
   behavior of "IO Log Repository"
