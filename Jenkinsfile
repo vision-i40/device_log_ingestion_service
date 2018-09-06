@@ -82,7 +82,7 @@ pipeline {
                    --env MONGODB_IP=$MONGODB_IP \
                    --env MONGODB_PORT=$MONGODB_PORT \
                    --env MONGODB_DB=$MONGODB_DB \
-                   --env RABBITMQ_HOST=$RABBITMQ_IP \
+                   --env RABBITMQ_IP=$RABBITMQ_IP \
                    --env RABBITMQ_PORT=$RABBITMQ_PORT \
                    --env RABBITMQ_VIRTUAL_HOST=$RABBITMQ_VIRTUAL_HOST \
                    --env RABBITMQ_USER=$RABBITMQ_USER \
