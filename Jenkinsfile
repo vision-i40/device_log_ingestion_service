@@ -7,6 +7,7 @@ pipeline {
 
   environment {
     PROJECT_ID = 'rich-atom-211704'
+    GCLOUD_CREDENTIALS = credentials('c4acba287c49f871fc714f1952baa9a17f2c2658')
     CONTAINER_NAME = "io_log_ingestion_manager_10_$BUILD_NUMBER"
     CONTAINER_TAG = "io_log_ingestion_manager-1.0:$BUILD_NUMBER"
     CONTAINER_NETWORK = 'io_log_ingestion_manager_network'
