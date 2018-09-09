@@ -2,10 +2,15 @@ package infrastructure
 
 import com.rabbitmq.client._
 import config.RabbitMQConfig
+import play.api.Logger
 import scala.util.Try
 
 class QueueSubscriber {
+  private val logger: Logger = Logger(getClass)
+
   def subscribe(callback: String => Unit)(implicit config: RabbitMQConfig): Try[String] = {
+    logger.info(s"Subscribing to ${config.queue.name}")
+
     connect(config)
       .flatMap(createChannel)
       .map { channel =>
