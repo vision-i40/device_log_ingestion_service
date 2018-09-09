@@ -58,15 +58,17 @@ class IngestionEventStep extends ScalaDsl with Matchers with EN with ParseIngest
   Then("""^I should save Wise IO Log in database$""") { () =>
     storedWiseIOLog = Await.result(MongoDBHelper.getByDeviceId(wiseIngestionEvent.deviceId), 5 seconds)
 
-    eventually(timeout(5 seconds), interval(5 millis)) {
+    eventually(timeout(10 seconds), interval(5 millis)) {
       storedWiseIOLog.isDefined shouldEqual true
     }
+
+    println(wiseIngestionEvent)
   }
 
   Then("""^I should save unknown IO Log in database$""") { () =>
     storedUnknownIOLog = Await.result(MongoDBHelper.getByDeviceId(unknownIngestionEvent.deviceId), 5 seconds)
 
-    eventually(timeout(5 seconds), interval(5 millis)) {
+    eventually(timeout(10 seconds), interval(5 millis)) {
       storedUnknownIOLog.isDefined shouldEqual true
     }
   }

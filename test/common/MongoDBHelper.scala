@@ -16,7 +16,7 @@ object MongoDBHelper extends IOLogBSONHandler {
 
   private val config = MongoDBConfig()
   private val driver = MongoDriver()
-  private val parsedUri = MongoConnection.parseURI(s"mongodb://${config.host}:${config.port}/${config.db}")
+  private val parsedUri = MongoConnection.parseURI(config.uri)
   private val db: Future[DefaultDB] = Future.fromTry(parsedUri.map(driver.connection)).flatMap(_.database(config.db))
   private val collectionFuture = db.map((db: DefaultDB) => db[BSONCollection](collectionName))
   private val projection = Some(BSONDocument(

@@ -27,7 +27,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
   .settings(inConfig(UnitTestConf)(Defaults.testTasks): _*)
   .settings(inConfig(IntegrationTestConf)(Defaults.testTasks): _*)
 
-CucumberPlugin.glue := "functional"
+CucumberPlugin.glue := "functional/steps"
+CucumberPlugin.features := List("test/functional/features")
 
 coverageExcludedPackages := "<empty>;Module;.*Reverse*Controller*;router.*"
 

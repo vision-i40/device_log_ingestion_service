@@ -8,6 +8,7 @@ pipeline {
   environment {
     PROJECT_ID = 'rich-atom-211704'
     GCLOUD_CREDENTIALS = credentials('c4acba287c49f871fc714f1952baa9a17f2c2658')
+    DEFAULT_REGION = "us-central1-a"
     CONTAINER_NAME = "io_log_ingestion_manager_10_$BUILD_NUMBER"
     CONTAINER_TAG = "io_log_ingestion_manager-1.0:$BUILD_NUMBER"
     CONTAINER_NETWORK = 'io_log_ingestion_manager_network'
@@ -70,8 +71,8 @@ pipeline {
             export MONGODB_IP=$(docker inspect $MONGODB_CONTAINER_NAME -f "{{ .NetworkSettings.Networks.$CONTAINER_NETWORK.IPAddress }}")
 
             export IO_LOG_INGESTION_MANAGER_PORT=9000
-            export MONGODB_PORT=27017
             export MONGODB_DB="io_logs_functional"
+            export MONGODB_URI="mongodb://${MONGODB_IP}/"${MONGODB_DB}"?retryWrites=true"
             export RABBITMQ_PORT=5672
             export RABBITMQ_VIRTUAL_HOST="/"
             export RABBITMQ_USER="rabbitmq"
@@ -80,8 +81,7 @@ pipeline {
             export RABBITMQ_ROUTING_KEY="io_log.ingestion"
 
             docker run -d --rm -p9000:9000 --network=$CONTAINER_NETWORK --name=$CONTAINER_NAME \
-                   --env MONGODB_IP=$MONGODB_IP \
-                   --env MONGODB_PORT=$MONGODB_PORT \
+                   --env MONGODB_URI=$MONGODB_URI \
                    --env MONGODB_DB=$MONGODB_DB \
                    --env RABBITMQ_IP=$RABBITMQ_IP \
                    --env RABBITMQ_PORT=$RABBITMQ_PORT \
@@ -111,6 +111,13 @@ pipeline {
         sh 'gcloud auth activate-service-account --key-file $GCLOUD_CREDENTIALS'
         sh 'gcloud auth configure-docker --quiet'
         sh 'docker push gcr.io/$PROJECT_ID/$CONTAINER_TAG'
+      }
+    }
+    stage('Deploy to Production') {
+      steps {
+        sh 'gcloud auth activate-service-account --key-file $GCLOUD_CREDENTIALS'
+        sh 'gcloud container clusters get-credentials microservices-default --region=$DEFAULT_REGION --project=$PROJECT_ID'
+        sh 'kubectl set image deployments/iologingestion iologingestion=gcr.io/$PROJECT_ID/$CONTAINER_TAG'
       }
     }
   }
