@@ -75,7 +75,7 @@ pipeline {
 
             export IO_LOG_INGESTION_MANAGER_PORT=9000
             export MONGODB_DB="io_logs_functional"
-            export MONGODB_URI="mongodb://${MONGODB_IP}/"${MONGODB_DB}
+            export MONGODB_URI="mongodb://${MONGODB_IP}/${MONGODB_DB}"
             export RABBITMQ_PORT=5672
             export RABBITMQ_VIRTUAL_HOST="/"
             export RABBITMQ_USER="rabbitmq"
@@ -84,8 +84,8 @@ pipeline {
             export RABBITMQ_ROUTING_KEY="io_log.ingestion"
 
             docker run -d --rm -p9000:9000 --network=$CONTAINER_NETWORK --name=$CONTAINER_NAME \
-                   --env MONGODB_URI=$MONGODB_URI \
                    --env MONGODB_DB=$MONGODB_DB \
+                   --env MONGODB_URI=$MONGODB_URI \
                    --env RABBITMQ_IP=$RABBITMQ_IP \
                    --env RABBITMQ_PORT=$RABBITMQ_PORT \
                    --env RABBITMQ_VIRTUAL_HOST=$RABBITMQ_VIRTUAL_HOST \
@@ -100,6 +100,8 @@ pipeline {
             ./scripts/waitForConnection.sh $IO_LOG_INGESTION_MANAGER_HOST $IO_LOG_INGESTION_MANAGER_PORT
 
             env MONGODB_URI=$MONGODB_URI JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
+
+            docker logs $CONTAINER_NAME
           '''
         sh ''
       }
