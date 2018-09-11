@@ -41,7 +41,6 @@ class IngestionEventStep extends ScalaDsl with Matchers with EN with ParseIngest
   Given("""^the service is up and running$""") { () =>
     QueueHelper.setupExchange()
     QueueHelper.reset
-    MongoDBHelper.reset
 
     val response: HttpResponse[String] = Http(MANAGER_URL).asString
 

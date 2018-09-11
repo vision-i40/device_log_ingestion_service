@@ -35,11 +35,6 @@ object MongoDBHelper extends IOLogBSONHandler {
     "savedAt" -> 1
   ))
 
-  def disconnect: Future[_] = {
-    implicit val timeout: FiniteDuration = FiniteDuration(5, TimeUnit.SECONDS)
-    connection.get.askClose()
-  }
-
   def reset: Boolean = {
     Await.result(collectionFuture.flatMap(_.drop(failIfNotFound = false)), 10 seconds)
   }

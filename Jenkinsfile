@@ -75,7 +75,7 @@ pipeline {
 
             export IO_LOG_INGESTION_MANAGER_PORT=9000
             export MONGODB_DB="io_logs_functional"
-            export MONGODB_URI="mongodb://${MONGODB_IP}/"${MONGODB_DB}"?retryWrites=true"
+            export MONGODB_URI="mongodb://${MONGODB_IP}/"${MONGODB_DB}
             export RABBITMQ_PORT=5672
             export RABBITMQ_VIRTUAL_HOST="/"
             export RABBITMQ_USER="rabbitmq"
@@ -99,7 +99,7 @@ pipeline {
 
             ./scripts/waitForConnection.sh $IO_LOG_INGESTION_MANAGER_HOST $IO_LOG_INGESTION_MANAGER_PORT
 
-            env MONGODB_IP=$MONGODB_IP JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
+            env MONGODB_URI=$MONGODB_URI JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
           '''
         sh ''
       }
