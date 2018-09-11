@@ -99,7 +99,7 @@ pipeline {
 
             ./scripts/waitForConnection.sh $IO_LOG_INGESTION_MANAGER_HOST $IO_LOG_INGESTION_MANAGER_PORT
 
-            env MONGODB_URI=$MONGODB_URI JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
+            env MONGODB_URI=$MONGODB_URI JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber || true
 
             docker logs $CONTAINER_NAME
           '''
