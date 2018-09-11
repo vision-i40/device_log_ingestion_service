@@ -25,6 +25,4 @@ object Connection {
   def apply(): Connection = {
     new Connection(config.uri, config.db)
   }
-
-
 }

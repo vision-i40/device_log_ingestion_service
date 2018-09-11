@@ -8,12 +8,12 @@ import infrastructure.IngestionEvent
 import infrastructure.parsing.ParseIngestionEvent
 import io_log_ingestion.IOLog
 import io_log_ingestion.devices.DeviceType
-import org.scalatest.Matchers
+import org.scalatest.{BeforeAndAfterAll, Matchers}
 import play.api.libs.json.Json
 import scalaj.http.{Http, HttpResponse}
 import org.scalatest.concurrent.Eventually.{eventually, interval, timeout}
+
 import scala.concurrent.duration._
-import scala.concurrent.Await
 import scala.language.postfixOps
 
 class IngestionEventStep extends ScalaDsl with Matchers with EN with ParseIngestionEvent {
@@ -34,14 +34,14 @@ class IngestionEventStep extends ScalaDsl with Matchers with EN with ParseIngest
   private val unknownRawLog: String = "a-unidentified-log"
   private val unknownIngestionEvent: IngestionEvent = IngestionEventBuilder(rawLog = unknownRawLog).build
 
-  QueueHelper.setupExchange()
-  QueueHelper.reset
-  MongoDBHelper.reset
-
   private var storedWiseIOLog: Option[IOLog] = None
   private var storedUnknownIOLog: Option[IOLog] = None
 
   Given("""^the service is up and running$""") { () =>
+    QueueHelper.setupExchange()
+    QueueHelper.reset
+    MongoDBHelper.reset
+
     val response: HttpResponse[String] = Http(MANAGER_URL).asString
 
     response.code shouldEqual 200
@@ -56,19 +56,29 @@ class IngestionEventStep extends ScalaDsl with Matchers with EN with ParseIngest
   }
 
   Then("""^I should save Wise IO Log in database$""") { () =>
-    storedWiseIOLog = Await.result(MongoDBHelper.getByDeviceId(wiseIngestionEvent.deviceId), 5 seconds)
+    val maybeIoLog = MongoDBHelper.getByDeviceId(wiseIngestionEvent.deviceId)
 
-    eventually(timeout(10 seconds), interval(5 millis)) {
+    eventually(timeout(10 seconds), interval(100 millis)) {
+      maybeIoLog.isCompleted shouldEqual true
+
+      val actualResult = maybeIoLog.value.flatMap(_.get)
+
+      storedWiseIOLog = actualResult
+
       storedWiseIOLog.isDefined shouldEqual true
     }
-
-    println(wiseIngestionEvent)
   }
 
   Then("""^I should save unknown IO Log in database$""") { () =>
-    storedUnknownIOLog = Await.result(MongoDBHelper.getByDeviceId(unknownIngestionEvent.deviceId), 5 seconds)
+    val maybeIoLog = MongoDBHelper.getByDeviceId(unknownIngestionEvent.deviceId)
 
-    eventually(timeout(10 seconds), interval(5 millis)) {
+    eventually(timeout(10 seconds), interval(100 millis)) {
+      maybeIoLog.isCompleted shouldEqual true
+
+      val actualResult = maybeIoLog.value.flatMap(_.get)
+
+      storedUnknownIOLog = actualResult
+
       storedUnknownIOLog.isDefined shouldEqual true
     }
   }

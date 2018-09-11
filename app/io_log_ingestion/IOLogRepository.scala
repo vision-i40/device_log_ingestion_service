@@ -7,7 +7,7 @@ import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait IOLogRepository extends IOLogBSONHandler {
-  val collectionName = "io_logs"
+  private val collectionName = "io_logs"
   private val ioLogCollection: Future[BSONCollection] = Connection().collection(collectionName)
 
   def save(ioLog: IOLog): Future[IOLog] = {

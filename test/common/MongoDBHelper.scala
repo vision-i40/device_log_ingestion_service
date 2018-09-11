@@ -1,11 +1,14 @@
 package common
 
+import java.util.concurrent.TimeUnit
+
 import config.MongoDBConfig
 import infrastructure.mongodb.serialization.IOLogBSONHandler
 import io_log_ingestion.IOLog
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
 import reactivemongo.bson.BSONDocument
+
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Await, Future}
@@ -17,9 +20,11 @@ object MongoDBHelper extends IOLogBSONHandler {
   private val config = MongoDBConfig()
   private val driver = MongoDriver()
   private val parsedUri = MongoConnection.parseURI(config.uri)
-  private val collectionFuture = Future.fromTry(parsedUri.map(driver.connection))
+  private val connection = parsedUri.map(driver.connection)
+  private val collectionFuture = Future.fromTry(connection)
     .flatMap(_.database(config.db))
     .map((db: DefaultDB) => db[BSONCollection](collectionName))
+
   private val projection = Some(BSONDocument(
     "traceId" -> 1,
     "deviceId" -> 1,
@@ -29,6 +34,11 @@ object MongoDBHelper extends IOLogBSONHandler {
     "receivedAt" -> 1,
     "savedAt" -> 1
   ))
+
+  def disconnect: Future[_] = {
+    implicit val timeout: FiniteDuration = FiniteDuration(5, TimeUnit.SECONDS)
+    connection.get.askClose()
+  }
 
   def reset: Boolean = {
     Await.result(collectionFuture.flatMap(_.drop(failIfNotFound = false)), 10 seconds)
