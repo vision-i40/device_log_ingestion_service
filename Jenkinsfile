@@ -70,6 +70,9 @@ pipeline {
             export RABBITMQ_IP=$(docker inspect $RABBITMQ_CONTAINER_NAME -f "{{ .NetworkSettings.Networks.$CONTAINER_NETWORK.IPAddress }}")
             export MONGODB_IP=$(docker inspect $MONGODB_CONTAINER_NAME -f "{{ .NetworkSettings.Networks.$CONTAINER_NETWORK.IPAddress }}")
 
+            ./scripts/waitForConnection.sh $MONGODB_IP $MONGODB_CONTAINER_PORT
+            ./scripts/waitForConnection.sh $RABBITMQ_IP $RABBITMQ_CONTAINER_PORT
+
             export IO_LOG_INGESTION_MANAGER_PORT=9000
             export MONGODB_DB="io_logs_functional"
             export MONGODB_URI="mongodb://${MONGODB_IP}/"${MONGODB_DB}"?retryWrites=true"
@@ -96,7 +99,7 @@ pipeline {
 
             ./scripts/waitForConnection.sh $IO_LOG_INGESTION_MANAGER_HOST $IO_LOG_INGESTION_MANAGER_PORT
 
-            env JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
+            env MONGODB_IP=$MONGODB_IP JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
           '''
         sh ''
       }

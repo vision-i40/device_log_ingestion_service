@@ -13,6 +13,7 @@ import play.api.libs.json.Json
 import scalaj.http.{Http, HttpResponse}
 import org.scalatest.concurrent.Eventually.{eventually, interval, timeout}
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -56,28 +57,18 @@ class IngestionEventStep extends ScalaDsl with Matchers with EN with ParseIngest
   }
 
   Then("""^I should save Wise IO Log in database$""") { () =>
-    val maybeIoLog = MongoDBHelper.getByDeviceId(wiseIngestionEvent.deviceId)
 
-    eventually(timeout(10 seconds), interval(100 millis)) {
-      maybeIoLog.isCompleted shouldEqual true
-
-      val actualResult = maybeIoLog.value.flatMap(_.get)
-
-      storedWiseIOLog = actualResult
+    eventually(timeout(30 seconds), interval(100 millis)) {
+      storedWiseIOLog = Await.result(MongoDBHelper.getByDeviceId(wiseIngestionEvent.deviceId), 5 seconds)
 
       storedWiseIOLog.isDefined shouldEqual true
     }
   }
 
   Then("""^I should save unknown IO Log in database$""") { () =>
-    val maybeIoLog = MongoDBHelper.getByDeviceId(unknownIngestionEvent.deviceId)
 
-    eventually(timeout(10 seconds), interval(100 millis)) {
-      maybeIoLog.isCompleted shouldEqual true
-
-      val actualResult = maybeIoLog.value.flatMap(_.get)
-
-      storedUnknownIOLog = actualResult
+    eventually(timeout(30 seconds), interval(100 millis)) {
+      storedUnknownIOLog = Await.result(MongoDBHelper.getByDeviceId(unknownIngestionEvent.deviceId), 5 seconds)
 
       storedUnknownIOLog.isDefined shouldEqual true
     }
