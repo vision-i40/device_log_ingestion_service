@@ -1,16 +1,13 @@
 package common
 
-import java.util.concurrent.TimeUnit
-
 import config.MongoDBConfig
 import infrastructure.mongodb.serialization.IOLogBSONHandler
 import io_log_ingestion.IOLog
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
 import reactivemongo.bson.BSONDocument
-
-import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 
