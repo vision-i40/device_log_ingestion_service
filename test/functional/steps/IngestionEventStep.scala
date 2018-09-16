@@ -39,6 +39,7 @@ class IngestionEventStep extends ScalaDsl with Matchers with EN with ParseIngest
   private var storedUnknownIOLog: Option[IOLog] = None
 
   Given("""^the service is up and running$""") { () =>
+    MongoDBHelper.reset
     QueueHelper.setupExchange()
     QueueHelper.reset
 

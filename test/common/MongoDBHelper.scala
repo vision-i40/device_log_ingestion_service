@@ -19,6 +19,7 @@ object MongoDBHelper extends IOLogBSONHandler {
   private val config = MongoDBConfig()
   private val driver = MongoDriver()
   private val parsedUri = MongoConnection.parseURI(config.uri)
+  private val collectionConnection = getCollectionConnection
 
   private val projection = Some(BSONDocument(
     "traceId" -> 1,
@@ -31,15 +32,15 @@ object MongoDBHelper extends IOLogBSONHandler {
   ))
 
   def reset: Boolean = {
-    Await.result(getCollectionConnection.flatMap(_.drop(failIfNotFound = false)), 10 seconds)
+    Await.result(collectionConnection.flatMap(_.drop(failIfNotFound = false)), 10 seconds)
   }
 
   def setupCollection(): Unit = {
-    Await.result(getCollectionConnection.flatMap(_.create), 10 seconds)
+    Await.result(collectionConnection.flatMap(_.create), 10 seconds)
   }
 
   def getLast: Future[Option[IOLog]] = {
-    getCollectionConnection.flatMap { collection =>
+    collectionConnection.flatMap { collection =>
       collection
         .find(BSONDocument(), projection)
         .sort(BSONDocument("_id" -> -1))
@@ -48,7 +49,7 @@ object MongoDBHelper extends IOLogBSONHandler {
   }
 
   def getByDeviceId(deviceId: String): Future[Option[IOLog]] = {
-    getCollectionConnection.flatMap { collection =>
+    collectionConnection.flatMap { collection =>
       collection
         .find(BSONDocument("deviceId" -> deviceId), projection)
         .sort(BSONDocument("_id" -> -1))

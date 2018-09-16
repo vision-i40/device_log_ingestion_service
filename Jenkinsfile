@@ -118,13 +118,6 @@ pipeline {
         sh 'docker push gcr.io/$PROJECT_ID/$CONTAINER_TAG'
       }
     }
-    stage('Deploy to Production') {
-      steps {
-        sh 'gcloud auth activate-service-account --key-file $GCLOUD_CREDENTIALS'
-        sh 'gcloud container clusters get-credentials microservices-default --region=$DEFAULT_REGION --project=$PROJECT_ID'
-        sh 'kubectl set image deployments/iologingestion iologingestion=gcr.io/$PROJECT_ID/$CONTAINER_TAG'
-      }
-    }
   }
 
   post {

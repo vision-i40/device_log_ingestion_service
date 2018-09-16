@@ -3,18 +3,32 @@ package infrastructure
 import com.rabbitmq.client._
 import config.RabbitMQConfig
 import play.api.Logger
-import scala.util.Try
+
+import scala.concurrent.Future
+import akka.pattern.after
+import akka.actor.ActorSystem
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
 
 class QueueSubscriber {
   private val logger: Logger = Logger(getClass)
+  private val retryDelay: FiniteDuration = 2 seconds
+  private val actorSystem: ActorSystem = ActorSystem()
 
-  def subscribe(callback: String => Unit)(implicit config: RabbitMQConfig): Try[String] = {
+  def subscribe(callback: String => Unit)(implicit config: RabbitMQConfig): Future[String] = {
     logger.info(s"Subscribing to ${config.queue.name}")
 
     connect(config)
       .flatMap(createChannel)
       .map { channel =>
         channel.basicConsume(config.queue.name, createConsumer(callback, channel))
+      }
+      .recoverWith {
+        case _ =>
+          logger.error("Failed to connect to queue. Trying again.")
+          after(retryDelay, actorSystem.scheduler)(subscribe(callback))
       }
   }
 
@@ -28,11 +42,11 @@ class QueueSubscriber {
     }
   }
 
-  private def createChannel(connection: Connection) : Try[Channel] = {
-    Try(connection.createChannel())
+  private def createChannel(connection: Connection) : Future[Channel] = {
+    Future(connection.createChannel())
   }
 
-  private def connect(config: RabbitMQConfig): Try[Connection] = {
+  private def connect(config: RabbitMQConfig): Future[Connection] = {
     val factory = new ConnectionFactory
 
     factory.setUsername(config.user)
@@ -41,7 +55,7 @@ class QueueSubscriber {
     factory.setHost(config.host)
     factory.setPort(config.port)
 
-    Try(factory.newConnection)
+    Future(factory.newConnection)
   }
 }
 

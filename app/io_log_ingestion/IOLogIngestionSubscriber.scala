@@ -15,7 +15,12 @@ object IOLogIngestionSubscriber {
 
   private val logger: Logger = Logger(getClass)
 
-  def apply(): Try[String] = QueueSubscriber().subscribe { message =>
+  def apply(): Unit = {
+    QueueSubscriber()
+      .subscribe(parseAndIngest)
+  }
+
+  def parseAndIngest(message: String): Unit = {
     logger.info(s"Received ingestion event '$message'")
 
     Future.fromTry(ParseIngestionEvent(message))
@@ -26,6 +31,5 @@ object IOLogIngestionSubscriber {
         case Success(result) =>
           logger.info(s"IO Log was ingested and saved in our database $result")
       }
-
   }
 }
