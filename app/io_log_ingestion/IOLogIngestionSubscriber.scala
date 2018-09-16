@@ -26,7 +26,8 @@ object IOLogIngestionSubscriber {
       .flatMap(IngestIOLog(_))
       .onComplete {
         case Failure(exception) =>
-          logger.error("There was an error while processing the message. Log was not save in database.", exception)
+          logger.error(s"There was an error while processing the message. " +
+            s"Log was not save in database due to ${exception.getMessage}.")
         case Success(result) =>
           logger.info(s"IO Log was ingested and saved in our database $result")
       }
