@@ -75,7 +75,7 @@ pipeline {
 
             export IO_LOG_INGESTION_MANAGER_PORT=9000
             export MONGODB_DB="io_logs_functional"
-            export MONGODB_URI="mongodb://${MONGODB_IP}/${MONGODB_DB}"
+            export MONGODB_URI="mongodb://${MONGODB_IP}:${MONGODB_CONTAINER_PORT}/${MONGODB_DB}"
             export RABBITMQ_PORT=5672
             export RABBITMQ_VIRTUAL_HOST="/"
             export RABBITMQ_USER="rabbitmq"
@@ -109,13 +109,6 @@ pipeline {
         success {
           archiveArtifacts 'target/test-reports/**/*'
         }
-      }
-    }
-    stage('Register Container Build') {
-      steps {
-        sh 'gcloud auth activate-service-account --key-file $GCLOUD_CREDENTIALS'
-        sh 'gcloud auth configure-docker --quiet'
-        sh 'docker push gcr.io/$PROJECT_ID/$CONTAINER_TAG'
       }
     }
   }
