@@ -105,24 +105,24 @@ pipeline {
           '''
         sh ''
       }
-      stage('Register Container Build') {
-        steps {
-          sh 'gcloud auth activate-service-account --key-file $GCLOUD_CREDENTIALS'
-          sh 'gcloud auth configure-docker --quiet'
-          sh 'docker push gcr.io/$PROJECT_ID/$CONTAINER_TAG'
-        }
-      }
-      stage('Deploy to Production') {
-        steps {
-          sh 'gcloud auth activate-service-account --key-file $GCLOUD_CREDENTIALS'
-          sh 'gcloud container clusters get-credentials $K8S_CLUSTER_NAME --region=$DEFAULT_REGION --project=$PROJECT_ID'
-          sh 'kubectl set image deployments/$K8S_POD_NAME $K8S_POD_NAME=gcr.io/$PROJECT_ID/$CONTAINER_TAG'
-        }
-      }
       post {
         success {
           archiveArtifacts 'target/test-reports/**/*'
         }
+      }
+    }
+    stage('Register Container Build') {
+      steps {
+        sh 'gcloud auth activate-service-account --key-file $GCLOUD_CREDENTIALS'
+        sh 'gcloud auth configure-docker --quiet'
+        sh 'docker push gcr.io/$PROJECT_ID/$CONTAINER_TAG'
+      }
+    }
+    stage('Deploy to Production') {
+      steps {
+        sh 'gcloud auth activate-service-account --key-file $GCLOUD_CREDENTIALS'
+        sh 'gcloud container clusters get-credentials $K8S_CLUSTER_NAME --region=$DEFAULT_REGION --project=$PROJECT_ID'
+        sh 'kubectl set image deployments/$K8S_POD_NAME $K8S_POD_NAME=gcr.io/$PROJECT_ID/$CONTAINER_TAG'
       }
     }
   }
