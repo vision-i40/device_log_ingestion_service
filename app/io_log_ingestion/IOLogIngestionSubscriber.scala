@@ -10,17 +10,16 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 object IOLogIngestionSubscriber {
+  implicit private val config: RabbitMQConfig = RabbitMQConfig()
+  implicit private val repository: IOLogRepository = IOLogRepository
   private val logger: Logger = Logger(getClass)
-  
+
   def apply(): Unit = {
-    implicit val config: RabbitMQConfig = RabbitMQConfig()
     QueueSubscriber()
       .subscribe(parseAndIngest)
   }
 
   def parseAndIngest(message: String): Unit = {
-    implicit val repository: IOLogRepository = IOLogRepository
-
     logger.info(s"Received ingestion event '$message'")
 
     Future.fromTry(ParseIngestionEvent(message))
