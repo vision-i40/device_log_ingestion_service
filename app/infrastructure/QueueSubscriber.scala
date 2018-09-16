@@ -3,7 +3,6 @@ package infrastructure
 import com.rabbitmq.client._
 import config.RabbitMQConfig
 import play.api.Logger
-
 import scala.concurrent.Future
 import akka.pattern.after
 import akka.actor.ActorSystem
