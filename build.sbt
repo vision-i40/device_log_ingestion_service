@@ -2,7 +2,7 @@
 name := """io_log_ingestion_manager"""
 organization := "com.vision40"
 
-version := "1.0-SNAPSHOT"
+version := "1.0"
 
 lazy val UnitTestConf = config("unit") extend Test
 lazy val IntegrationTestConf = config("integration") extend Test
