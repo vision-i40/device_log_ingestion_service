@@ -18,6 +18,7 @@ pipelines:
         caches:
           - sbt
           - ivy2
+        size: 2x
         script:
           - ./scripts/wait_for_rabbitmq.sh $RABBITMQ_HOST $RABBITMQ_HTTP_PORT $RABBITMQ_USER $RABBITMQ_PASSWORD
           - ./scripts/wait_for.sh $MONGODB_HOST $MONGODB_PORT
@@ -32,6 +33,7 @@ pipelines:
         caches:
           - sbt
           - ivy2
+        size: 2x
         script:
           - sbt dist
           - unzip target/universal/io_log_ingestion_manager-1.0.zip -d .
