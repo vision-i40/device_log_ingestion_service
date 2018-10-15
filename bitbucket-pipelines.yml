@@ -1,0 +1,71 @@
+image:
+   name: gcr.io/rich-atom-211704/scala-sbt:scala-2.12-3
+   username: _json_key
+   password: '$GCR_JSON_KEY'
+
+pipelines:
+  default:
+    - step:
+        name: Unit Testing
+        caches:
+          - sbt
+          - ivy2
+        script:
+          - sbt unit
+
+    - step:
+        name: Integration Testing
+        caches:
+          - sbt
+          - ivy2
+        script:
+          - ./scripts/wait_for_rabbitmq.sh $RABBITMQ_HOST $RABBITMQ_HTTP_PORT $RABBITMQ_USER $RABBITMQ_PASSWORD
+          - sbt coverage unit integration
+          - sbt coverageReport
+        services:
+          - rabbitmq
+          - mongo
+
+    - step:
+        name: Functional Testing
+        caches:
+          - sbt
+          - ivy2
+        script:
+          - sbt dist
+          - unzip target/universal/io_log_ingestion_manager-1.0.zip -d .
+          - io_log_ingestion_manager-1.0/bin/io_log_ingestion_manager -Dhttp.port=$IO_LOG_INGESTION_MANAGER_PORT -Dconfig.file=io_log_ingestion_manager-1.0/conf/application-functional.conf &
+          - ./scripts/wait_for.sh $IO_LOG_INGESTION_MANAGER_HOST $IO_LOG_INGESTION_MANAGER_PORT
+          - env JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
+        artifacts:
+          - io_log_ingestion_manager-1.0/**
+        services:
+          - rabbitmq
+          - mongo
+
+    - step:
+        name: Publish Artifact
+        script:
+          - CONTAINER_TAG="gcr.io/$GC_PROJECT_NAME/io_log_ingestion_manager-1.0:$BITBUCKET_COMMIT"
+          - mv io_log_ingestion_manager-1.0 containers/artifact/
+          - cd containers/artifact/
+          - docker build -t $CONTAINER_TAG .
+          - echo $GCR_JSON_KEY > gcr-credential.json
+          - gcloud auth activate-service-account --key-file gcr-credential.json
+          - gcloud auth configure-docker --quiet
+          - docker push $CONTAINER_TAG
+
+options:
+  docker: true
+
+definitions:
+  services:
+    rabbitmq:
+      image: rabbitmq:3-management
+      environment:
+        RABBITMQ_ERLANG_COOKIE: $RABBITMQ_ERLANG_COOKIE
+        RABBITMQ_DEFAULT_USER: $RABBITMQ_USER
+        RABBITMQ_DEFAULT_PASS: $RABBITMQ_PASSWORD
+        RABBITMQ_DEFAULT_VHOST: $RABBITMQ_VIRTUAL_HOST
+    mongo:
+      image: mongo:3.6
