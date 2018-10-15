@@ -20,6 +20,7 @@ pipelines:
           - ivy2
         script:
           - ./scripts/wait_for_rabbitmq.sh $RABBITMQ_HOST $RABBITMQ_HTTP_PORT $RABBITMQ_USER $RABBITMQ_PASSWORD
+          - ./scripts/wait_for.sh $MONGODB_HOST $MONGODB_PORT
           - sbt coverage unit integration
           - sbt coverageReport
         services:
