@@ -1,1 +1,2 @@
 GET     /                           infrastructure.StatusController.index
+POST    /log                        io_log_ingestion.LogController.add
