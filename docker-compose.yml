@@ -13,10 +13,6 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
-    labels:
-      NAME: "rabbitmq1"
-    networks:
-      - io_log_ingestion_manager_network
 
   mongodb:
     image: mongo:3.6
@@ -24,9 +20,3 @@ services:
     container_name: "io_log_ingestion_mongo"
     ports:
       - 27017:27017
-    networks:
-      - io_log_ingestion_manager_network
-
-networks:
-  io_log_ingestion_manager_network:
-    name: io_log_ingestion_manager_network
