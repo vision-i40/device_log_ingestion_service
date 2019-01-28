@@ -9,7 +9,7 @@ import scala.concurrent.Future
 trait IOLogRepository extends IOLogBSONHandler {
   private val collectionName = "io_logs"
 
-  def save(ioLog: IOLog): Future[IOLog] = {
+  def save(ioLog: DeviceLogRecord): Future[DeviceLogRecord] = {
     collectionConnection.flatMap { collection =>
       collection
         .insert(ioLog)

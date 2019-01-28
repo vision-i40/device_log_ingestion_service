@@ -4,7 +4,7 @@ import java.util.UUID.randomUUID
 
 import org.joda.time.LocalDateTime
 
-case class IOLogPayloadBuilder(
+case class DeviceLogPayloadBuilder(
   pe : String = "a-pe-value",
   uuid: String = randomUUID.toString,
   mac: String = "fc:01:7c:c0:42:37",

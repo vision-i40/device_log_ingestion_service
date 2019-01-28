@@ -2,7 +2,7 @@ package common
 
 import config.MongoDBConfig
 import infrastructure.mongodb.serialization.IOLogBSONHandler
-import io_log_ingestion.IOLog
+import io_log_ingestion.DeviceLogRecord
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
 import reactivemongo.bson.BSONDocument
@@ -36,21 +36,21 @@ object MongoDBHelper extends IOLogBSONHandler {
     Await.result(collectionConnection.flatMap(_.create), 10 seconds)
   }
 
-  def getLast: Future[Option[IOLog]] = {
+  def getLast: Future[Option[DeviceLogRecord]] = {
     collectionConnection.flatMap { collection =>
       collection
         .find(BSONDocument(), projection)
         .sort(BSONDocument("_id" -> -1))
-        .one[IOLog]
+        .one[DeviceLogRecord]
     }
   }
 
-  def getByDeviceId(deviceId: String): Future[Option[IOLog]] = {
+  def getByDeviceId(deviceId: String): Future[Option[DeviceLogRecord]] = {
     collectionConnection.flatMap { collection =>
       collection
         .find(BSONDocument("deviceId" -> deviceId), projection)
         .sort(BSONDocument("_id" -> -1))
-        .one[IOLog]
+        .one[DeviceLogRecord]
     }
   }
 

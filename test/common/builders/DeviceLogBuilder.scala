@@ -1,10 +1,10 @@
 package common.builders
 
 import java.util.UUID.randomUUID
-import io_log_ingestion.devices.{DeviceInfo, DeviceType}
+import io_log_ingestion.devices.{DeviceLog, DeviceType}
 import org.joda.time.DateTime
 
-case class DeviceLogInfoBuilder(
+case class DeviceLogBuilder(
   uid: String = randomUUID.toString,
   deviceType: DeviceType.Value = DeviceType.UNKNOWN,
   logDateTime: DateTime = DateTime.now,
@@ -13,8 +13,8 @@ case class DeviceLogInfoBuilder(
     "channel_2" -> "456"
   )
  ) {
-  def build: DeviceInfo = {
-   DeviceInfo(
+  def build: DeviceLog = {
+   DeviceLog(
      deviceType = deviceType,
      uid = uid,
      logDateTime = logDateTime,

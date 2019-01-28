@@ -1,7 +1,7 @@
 package unit.io_log_ingestion.devices.wise
 
 import common.builders.WiseJsonLogBuilder
-import io_log_ingestion.devices.{DeviceInfo, DeviceType}
+import io_log_ingestion.devices.{DeviceLog, DeviceType}
 import io_log_ingestion.devices.wise.IsWiseLog
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -21,7 +21,7 @@ class IsWiseLogTest extends FlatSpec with Matchers {
     val wiseLogBuilder = WiseJsonLogBuilder(Record = List(firstRecord, secondRecord, thirdRecord))
     val wiseRawJsonLog = wiseLogBuilder.build
 
-    IsWiseLog.unapply(wiseRawJsonLog) shouldEqual Some(DeviceInfo(
+    IsWiseLog.unapply(wiseRawJsonLog) shouldEqual Some(DeviceLog(
       deviceType = DeviceType.WISE,
       uid = wiseLogBuilder.UID,
       logDateTime = wiseLogBuilder.TIM,
