@@ -1,10 +1,9 @@
 package functional.steps
 
 import com.typesafe.config.ConfigFactory
-import common.{MongoDBHelper, QueueHelper}
-import common.builders.{IngestionEventBuilder, WiseJsonLogBuilder}
+import common.MongoDBHelper
+import common.builders.WiseJsonLogBuilder
 import cucumber.api.scala.{EN, ScalaDsl}
-import infrastructure.IngestionEvent
 import infrastructure.parsing.DeviceLogRecordReadersAndWriters
 import io_log_ingestion.DeviceLogRecord
 import io_log_ingestion.devices.DeviceType

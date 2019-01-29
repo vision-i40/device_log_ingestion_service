@@ -1,9 +1,7 @@
 package integration.io_log_ingestion
 
 import common.MongoDBHelper
-import common.builders.IOLogBuilder
-import io_log_ingestion.IOLogRepository
-import org.scalatest.{AsyncFlatSpec, BeforeAndAfterEach, FlatSpec, Matchers}
+import org.scalatest.{AsyncFlatSpec, BeforeAndAfterEach, Matchers}
 
 class DeviceLogRecordRepositoryTest extends AsyncFlatSpec with Matchers with BeforeAndAfterEach {
 

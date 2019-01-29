@@ -1,7 +1,7 @@
 package common
 
 import config.MongoDBConfig
-import infrastructure.mongodb.serialization.IOLogBSONHandler
+import infrastructure.mongodb.serialization.DeviceLogRecordBSONHandler
 import io_log_ingestion.DeviceLogRecord
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 
-object MongoDBHelper extends IOLogBSONHandler {
+object MongoDBHelper extends DeviceLogRecordBSONHandler {
   private val collectionName = "io_logs"
   private val config = MongoDBConfig()
   private val driver = MongoDriver()

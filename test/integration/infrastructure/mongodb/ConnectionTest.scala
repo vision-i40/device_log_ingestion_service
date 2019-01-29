@@ -1,15 +1,15 @@
 package integration.infrastructure.mongodb
 
 import common.MongoDBHelper
-import common.builders.IOLogBuilder
+import common.builders.DeviceLogRecordBuilder
 import config.MongoDBConfig
 import infrastructure.mongodb.Connection
-import infrastructure.mongodb.serialization.IOLogBSONHandler
+import infrastructure.mongodb.serialization.DeviceLogRecordBSONHandler
 import org.scalatest.{AsyncFlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ConnectionTest extends AsyncFlatSpec with Matchers with IOLogBSONHandler {
+class ConnectionTest extends AsyncFlatSpec with Matchers with DeviceLogRecordBSONHandler {
   val config = MongoDBConfig()
 
   behavior of "Mongo DB Connection"
@@ -24,19 +24,19 @@ class ConnectionTest extends AsyncFlatSpec with Matchers with IOLogBSONHandler {
   }
 
   it should "insert a document in collection" in {
-    val collectionName = "io_logs"
+    val collectionName = "device_logs"
     val collectionFuture = Connection().collection(collectionName)
-    val ioLog = IOLogBuilder().build
+    val deviceLog = DeviceLogRecordBuilder().build
 
     val futureIOLog = for {
       c <- collectionFuture
-      _ <- c.insert(ioLog)
-      i <- MongoDBHelper.getByDeviceId(ioLog.deviceId)
+      _ <- c.insert(deviceLog)
+      i <- MongoDBHelper.getByDeviceId(deviceLog.deviceId)
     } yield i
 
     futureIOLog.map { insertedIOLog =>
       insertedIOLog.isDefined shouldEqual true
-      insertedIOLog.get shouldEqual ioLog
+      insertedIOLog.get shouldEqual deviceLog
     }
   }
 }

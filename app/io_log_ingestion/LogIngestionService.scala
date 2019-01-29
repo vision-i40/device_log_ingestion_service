@@ -10,7 +10,36 @@ import scala.concurrent.Future
 class LogIngestionService {
   def ingest(deviceLog: String): Future[DeviceLogRecord] = {
     Future {
-      DeviceLogRecord(deviceId = "blabla", rawLog = deviceLog, deviceLog = None, detectedDevice = DeviceType.WISE, receivedAt = DateTime.now, savedAt = DateTime.now)
+      DeviceLogRecord(
+        deviceId = "blabla",
+        rawLog = deviceLog,
+        deviceLog = None,
+        detectedDevice = DeviceType.WISE,
+        receivedAt = DateTime.now,
+        savedAt = DateTime.now
+      )
     }
   }
 }
+
+//object DeviceLogRecord {
+//  def apply(ingestionEvent: IngestionEvent): DeviceLogRecord = {
+//    val deviceInfo = extractDeviceLogInfo(ingestionEvent.rawLog)
+//    val deviceType = deviceInfo.map(_.deviceType).getOrElse(DeviceType.UNKNOWN)
+//
+//    DeviceLogRecord(
+//      ingestionEvent.deviceId,
+//      ingestionEvent.rawLog,
+//      deviceInfo,
+//      deviceType,
+//      ingestionEvent.receivedAt
+//    )
+//  }
+//
+//  private def extractDeviceLogInfo(rawLog: String): Option[DeviceLog] = {
+//    rawLog match {
+//      case IsWiseLog(wiseLogInfo) => Some(AdaptWiseLogToDeviceLog(wiseLogInfo))
+//      case _ => None
+//    }
+//  }
+//}

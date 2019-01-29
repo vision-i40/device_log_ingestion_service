@@ -1,12 +1,12 @@
 package io_log_ingestion
 
 import infrastructure.mongodb.Connection
-import infrastructure.mongodb.serialization.IOLogBSONHandler
+import infrastructure.mongodb.serialization.DeviceLogRecordBSONHandler
 import reactivemongo.api.collections.bson.BSONCollection
 import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait IOLogRepository extends IOLogBSONHandler {
+trait DeviceLogRecordRepository extends DeviceLogRecordBSONHandler {
   private val collectionName = "io_logs"
 
   def save(ioLog: DeviceLogRecord): Future[DeviceLogRecord] = {
@@ -20,4 +20,4 @@ trait IOLogRepository extends IOLogBSONHandler {
   def collectionConnection: Future[BSONCollection] = Connection().collection(collectionName)
 }
 
-object IOLogRepository extends IOLogRepository
+object DeviceLogRecordRepository extends DeviceLogRecordRepository

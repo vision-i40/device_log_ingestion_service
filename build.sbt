@@ -39,7 +39,7 @@ unit := (test in UnitTestConf).value
 integration := (test in IntegrationTestConf).value
 
 testOptions in UnitTestConf := Seq(Tests.Filter(testPackageName => testPackageName.startsWith("unit")))
-javaOptions in UnitTestConf += s"-Dconfig.file=${baseDirectory.value}/conf/application-testlocal.conf"
+javaOptions in UnitTestConf += s"-Dconfig.file=${baseDirectory.value}/conf/application.conf"
 
 testOptions in IntegrationTestConf := Seq(Tests.Filter(testPackageName => testPackageName.startsWith("integration")))
-javaOptions in IntegrationTestConf += s"-Dconfig.file=${baseDirectory.value}/conf/application-integrationtests.conf"
+javaOptions in IntegrationTestConf += s"-Dconfig.file=${baseDirectory.value}/conf/application.conf"
