@@ -20,7 +20,6 @@ pipelines:
           - ivy2
         size: 2x
         script:
-          - ./scripts/wait_for_rabbitmq.sh $RABBITMQ_HOST $RABBITMQ_HTTP_PORT $RABBITMQ_USER $RABBITMQ_PASSWORD
           - ./scripts/wait_for.sh $MONGODB_HOST $MONGODB_PORT
           - sbt coverage unit integration
           - sbt coverageReport
@@ -63,12 +62,5 @@ options:
 
 definitions:
   services:
-    rabbitmq:
-      image: rabbitmq:3-management
-      environment:
-        RABBITMQ_ERLANG_COOKIE: $RABBITMQ_ERLANG_COOKIE
-        RABBITMQ_DEFAULT_USER: $RABBITMQ_USER
-        RABBITMQ_DEFAULT_PASS: $RABBITMQ_PASSWORD
-        RABBITMQ_DEFAULT_VHOST: $RABBITMQ_VIRTUAL_HOST
     mongo:
       image: mongo:3.6
