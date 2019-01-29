@@ -2,16 +2,14 @@ package io_log_ingestion
 
 import java.util.UUID.randomUUID
 
-import com.google.inject.Singleton
+import com.google.inject.{Inject, Singleton}
 import io_log_ingestion.devices.wise.{AdaptWiseLogToDeviceLog, IsWiseLog}
 import io_log_ingestion.devices.{DeviceLog, DeviceType}
 import org.joda.time.DateTime
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Singleton
-class LogIngestionService {
+class LogIngestionService @Inject() (repository: DeviceLogRecordRepository) {
   def ingest(rawDeviceLog: String): Future[DeviceLogRecord] = {
     val deviceLog = extractDeviceLog(rawDeviceLog)
 
@@ -23,7 +21,7 @@ class LogIngestionService {
       savedAt = DateTime.now
     )
 
-    Future { deviceLogRecord }
+    repository.save(deviceLogRecord)
   }
 
   def extractDeviceLog(rawDeviceLog: String): Option[DeviceLog] = rawDeviceLog match {

@@ -1,23 +1,23 @@
 package io_log_ingestion
 
+import com.google.inject.Singleton
 import infrastructure.mongodb.Connection
 import infrastructure.mongodb.serialization.DeviceLogRecordBSONHandler
 import reactivemongo.api.collections.bson.BSONCollection
 import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait DeviceLogRecordRepository extends DeviceLogRecordBSONHandler {
-  private val collectionName = "io_logs"
+@Singleton
+class DeviceLogRecordRepository extends DeviceLogRecordBSONHandler {
+  private val collectionName = "device_logs"
 
-  def save(ioLog: DeviceLogRecord): Future[DeviceLogRecord] = {
+  def save(deviceLog: DeviceLogRecord): Future[DeviceLogRecord] = {
     collectionConnection.flatMap { collection =>
       collection
-        .insert(ioLog)
-        .map(_ => ioLog)
+        .insert(deviceLog)
+        .map(_ => deviceLog)
     }
   }
 
   def collectionConnection: Future[BSONCollection] = Connection().collection(collectionName)
 }
-
-object DeviceLogRecordRepository extends DeviceLogRecordRepository
