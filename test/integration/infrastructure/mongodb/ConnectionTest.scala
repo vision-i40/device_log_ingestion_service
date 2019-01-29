@@ -28,15 +28,15 @@ class ConnectionTest extends AsyncFlatSpec with Matchers with DeviceLogRecordBSO
     val collectionFuture = Connection().collection(collectionName)
     val deviceLog = DeviceLogRecordBuilder().build
 
-    val futureIOLog = for {
+    val futureDeviceLog = for {
       c <- collectionFuture
       _ <- c.insert(deviceLog)
       i <- MongoDBHelper.getByDeviceId(deviceLog.deviceId)
     } yield i
 
-    futureIOLog.map { insertedIOLog =>
-      insertedIOLog.isDefined shouldEqual true
-      insertedIOLog.get shouldEqual deviceLog
+    futureDeviceLog.map { insertedDeviceLog =>
+      insertedDeviceLog.isDefined shouldEqual true
+      insertedDeviceLog.get shouldEqual deviceLog
     }
   }
 }

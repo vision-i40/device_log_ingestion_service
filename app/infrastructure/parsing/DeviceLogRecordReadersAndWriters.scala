@@ -14,7 +14,6 @@ trait DeviceLogRecordReadersAndWriters extends JodaDateTimeReadersAndWriters wit
     (__ \ "rawLog").write[String] and
     (__ \ "deviceLog").writeNullable[DeviceLog] and
     (__ \ "detectedDevice").write[DeviceType.Value] and
-    (__ \ "receivedAt").write[DateTime] and
     (__ \ "savedAt").write[DateTime]
   )(unlift(DeviceLogRecord.unapply))
 
@@ -23,7 +22,6 @@ trait DeviceLogRecordReadersAndWriters extends JodaDateTimeReadersAndWriters wit
     (__ \ "rawLog").read[String] and
     (__ \ "deviceLog").readNullable[DeviceLog] and
     (__ \ "detectedDevice").read[DeviceType.Value] and
-    (__ \ "receivedAt").read[DateTime] and
     (__ \ "savedAt").read[DateTime]
     )(DeviceLogRecord.apply _)
 }

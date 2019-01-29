@@ -12,19 +12,17 @@ import scala.concurrent.{Await, Future}
 import scala.language.postfixOps
 
 object MongoDBHelper extends DeviceLogRecordBSONHandler {
-  private val collectionName = "io_logs"
+  private val collectionName = "device_logs"
   private val config = MongoDBConfig()
   private val driver = MongoDriver()
   private val parsedUri = MongoConnection.parseURI(config.uri)
   private val collectionConnection = getCollectionConnection
 
   private val projection = Some(BSONDocument(
-    "traceId" -> 1,
     "deviceId" -> 1,
     "rawLog" -> 1,
-    "deviceLogInfo" -> 1,
+    "deviceLog" -> 1,
     "detectedDevice" -> 1,
-    "receivedAt" -> 1,
     "savedAt" -> 1
   ))
 

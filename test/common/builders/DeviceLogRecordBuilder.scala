@@ -17,6 +17,6 @@ case class DeviceLogRecordBuilder(
     rawLog = rawLog,
     deviceLog = deviceLog,
     detectedDevice = detectedDevice,
-    receivedAt = receivedAt,
-    savedAt = savedAt )
+    savedAt = savedAt
+  )
 }

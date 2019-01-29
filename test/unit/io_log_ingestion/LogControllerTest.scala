@@ -22,7 +22,7 @@ class LogControllerTest extends FlatSpec with Matchers with MockitoSugar {
   it should "successfully handle the request" in {
     val payloadBuilder = DeviceLogPayloadBuilder()
     val payload = payloadBuilder.build
-    val deviceLogRecord = DeviceLogRecordBuilder(deviceId = payloadBuilder.uuid).build
+    val deviceLogRecord = DeviceLogRecordBuilder(deviceId = payloadBuilder.uid).build
 
     when(service.ingest(any[String])).thenReturn(Future {deviceLogRecord})
 
@@ -33,7 +33,7 @@ class LogControllerTest extends FlatSpec with Matchers with MockitoSugar {
     val bodyText: String = contentAsString(result)
 
     status(result) shouldEqual OK
-    bodyText should include(payloadBuilder.uuid)
+    bodyText should include(payloadBuilder.uid)
     verify(service, times(1)).ingest(any[String])
   }
 

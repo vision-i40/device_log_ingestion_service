@@ -2,20 +2,20 @@ package common.builders
 
 import java.util.UUID.randomUUID
 
-import org.joda.time.LocalDateTime
+import org.joda.time.DateTime
 
 case class DeviceLogPayloadBuilder(
   pe : String = "a-pe-value",
-  uuid: String = randomUUID.toString,
+  uid: String = randomUUID.toString,
   mac: String = "fc:01:7c:c0:42:37",
-  receivedAt: String = LocalDateTime.now.toString
+  tim: DateTime = DateTime.now
 ) {
   def build: String = {
     s"""{
        |"PE": "$pe",
-       |"UID": "$uuid",
+       |"UID": "$uid",
        |"MAC": "$mac",
-       |"TIM": "$receivedAt",
+       |"TIM": "$tim",
        |"Record": [1, 3, 2, 5, 6]
        |}""".stripMargin
   }
