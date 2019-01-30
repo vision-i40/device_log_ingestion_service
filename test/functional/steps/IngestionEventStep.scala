@@ -6,75 +6,69 @@ import common.builders.WiseJsonLogBuilder
 import cucumber.api.scala.{EN, ScalaDsl}
 import infrastructure.parsing.DeviceLogRecordReadersAndWriters
 import io_log_ingestion.DeviceLogRecord
-import io_log_ingestion.devices.DeviceType
-import org.scalatest.{BeforeAndAfterAll, Matchers}
-import play.api.libs.json.Json
-import scalaj.http.{Http, HttpResponse}
+import org.scalatest.Matchers
 import org.scalatest.concurrent.Eventually.{eventually, interval, timeout}
+import scalaj.http.{Http, HttpResponse}
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
 class IngestionEventStep extends ScalaDsl with Matchers with EN with DeviceLogRecordReadersAndWriters {
-//  private val config = ConfigFactory.load()
-//  private val MANAGER_CONFIG_HOST = "io_log_ingestion_manager.host"
-//  private val MANAGER_CONFIG_PORT = "io_log_ingestion_manager.port"
-//  private val managerHost = config.getString(MANAGER_CONFIG_HOST)
-//  private val managerPort = config.getString(MANAGER_CONFIG_PORT)
-//  private val MANAGER_URL: String = s"http://$managerHost:$managerPort"
-//
-//  private val firstChannelInput = 1
-//  private val secondChannelInput = 1
-//  private val records = List(firstChannelInput, secondChannelInput)
-//  private val wiseJsonLogBuilder = WiseJsonLogBuilder(Record = records)
-//  private val wiseRawLog: String = wiseJsonLogBuilder.build
-//  private val wiseIngestionEvent: IngestionEvent = IngestionEventBuilder(rawLog = wiseRawLog).build
-//
-//  private val unknownRawLog: String = "a-unidentified-log"
-//  private val unknownIngestionEvent: IngestionEvent = IngestionEventBuilder(rawLog = unknownRawLog).build
-//
-//  private var storedWiseIOLog: Option[DeviceLogRecord] = None
-//  private var storedUnknownIOLog: Option[DeviceLogRecord] = None
-//
-//  Given("""^the service is up and running$""") { () =>
-//    MongoDBHelper.reset
-//    QueueHelper.setupExchange()
-//    QueueHelper.reset
-//
-//    val response: HttpResponse[String] = Http(MANAGER_URL).asString
-//
-//    response.code shouldEqual 200
-//  }
-//
-//  When("""^I receive an event from Wise device$""") { () =>
-//    QueueHelper.publish(Json.toJson(wiseIngestionEvent).toString)
-//  }
-//
-//  When("""^I receive an event from unknown device type$""") { () =>
-//    QueueHelper.publish(Json.toJson(unknownIngestionEvent).toString)
-//  }
-//
-//  Then("""^I should save Wise IO Log in database$""") { () =>
-//
-//    eventually(timeout(30 seconds), interval(100 millis)) {
-//      storedWiseIOLog = Await.result(MongoDBHelper.getByDeviceId(wiseIngestionEvent.deviceId), 5 seconds)
-//
-//      storedWiseIOLog.isDefined shouldEqual true
-//    }
-//  }
+  private val config = ConfigFactory.load()
+  private val MANAGER_CONFIG_HOST = "io_log_ingestion_manager.host"
+  private val MANAGER_CONFIG_PORT = "io_log_ingestion_manager.port"
+  private val managerHost = config.getString(MANAGER_CONFIG_HOST)
+  private val managerPort = config.getString(MANAGER_CONFIG_PORT)
+  private val MANAGER_URL: String = s"http://$managerHost:$managerPort"
+  private val DEVICE_LOG_INGESTION_URL: String = s"http://$managerHost:$managerPort/log"
+
+  private val firstChannelInput = 1
+  private val secondChannelInput = 1
+  private val records = List(firstChannelInput, secondChannelInput)
+  private val wiseJsonLogBuilder = WiseJsonLogBuilder(Record = records)
+  private val wiseRawLog: String = wiseJsonLogBuilder.build
+
+  private val unknownRawLog: String = "a-unidentified-log"
+
+  private var storedWiseDeviceLog: Option[DeviceLogRecord] = None
+  private var storedUnknownDeviceLog: Option[DeviceLogRecord] = None
+
+  Given("""^the service is up and running$""") { () =>
+    MongoDBHelper.reset
+
+    val response: HttpResponse[String] = Http(MANAGER_URL).asString
+
+    response.code shouldEqual 200
+  }
+
+  When("""^I receive a request from Wise device$""") { () =>
+    val response: HttpResponse[String] = Http(DEVICE_LOG_INGESTION_URL)
+                                          .postData(wiseRawLog)
+                                          .header("content-type", "application/json").asString
+
+    println(response.body)
+  }
+
+  Then("""^I should save Wise Device Log in database$""") { () =>
+
+    eventually(timeout(30 seconds), interval(100 millis)) {
+//      storedWiseDeviceLog = Await.result(MongoDBHelper.getByDeviceId(), 5 seconds)
+
+      storedWiseDeviceLog.isDefined shouldEqual true
+    }
+  }
 //
 //  Then("""^I should save unknown IO Log in database$""") { () =>
 //
 //    eventually(timeout(30 seconds), interval(100 millis)) {
-//      storedUnknownIOLog = Await.result(MongoDBHelper.getByDeviceId(unknownIngestionEvent.deviceId), 5 seconds)
+//      storedUnknownDeviceLog = Await.result(MongoDBHelper.getByDeviceId(unknownIngestionEvent.deviceId), 5 seconds)
 //
-//      storedUnknownIOLog.isDefined shouldEqual true
+//      storedUnknownDeviceLog.isDefined shouldEqual true
 //    }
 //  }
 //
 //  And("""^get ingestion event info of Wise device$""") { () =>
-//    val ioLog = storedWiseIOLog.get
+//    val ioLog = storedWiseDeviceLog.get
 //
 //    ioLog.receivedAt shouldEqual wiseIngestionEvent.receivedAt
 //    ioLog.deviceId shouldEqual wiseIngestionEvent.deviceId
@@ -83,7 +77,7 @@ class IngestionEventStep extends ScalaDsl with Matchers with EN with DeviceLogRe
 //  }
 //
 //  And("""^get ingestion event info of unknown device$""") { () =>
-//    val ioLog = storedUnknownIOLog.get
+//    val ioLog = storedUnknownDeviceLog.get
 //
 //    ioLog.receivedAt shouldEqual unknownIngestionEvent.receivedAt
 //    ioLog.deviceId shouldEqual unknownIngestionEvent.deviceId
@@ -93,15 +87,15 @@ class IngestionEventStep extends ScalaDsl with Matchers with EN with DeviceLogRe
 //  }
 //
 //  And("""^detect as Wise device$""") { () =>
-//    storedWiseIOLog.get.detectedDevice shouldEqual DeviceType.WISE
+//    storedWiseDeviceLog.get.detectedDevice shouldEqual DeviceType.WISE
 //  }
 //
 //  And("""^detect as unknown device$""") { () =>
-//    storedUnknownIOLog.get.detectedDevice shouldEqual DeviceType.UNKNOWN
+//    storedUnknownDeviceLog.get.detectedDevice shouldEqual DeviceType.UNKNOWN
 //  }
 //
 //  And("""^extract Wise info$""") { () =>
-//    val wiseInfo = storedWiseIOLog.get.deviceLogInfo
+//    val wiseInfo = storedWiseDeviceLog.get.deviceLogInfo
 //
 //    val expectedChannelInputs = Map(
 //      "channel_1" -> firstChannelInput.toString,
@@ -116,7 +110,7 @@ class IngestionEventStep extends ScalaDsl with Matchers with EN with DeviceLogRe
 //  }
 //
 //  And("""^does not extract info$""") { () =>
-//    val deviceInfo = storedUnknownIOLog.get.deviceLogInfo
+//    val deviceInfo = storedUnknownDeviceLog.get.deviceLogInfo
 //
 //    deviceInfo shouldEqual None
 //  }
