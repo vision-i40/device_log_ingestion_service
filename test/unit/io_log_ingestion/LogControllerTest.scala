@@ -32,7 +32,7 @@ class LogControllerTest extends FlatSpec with Matchers with MockitoSugar {
 
     val bodyText: String = contentAsString(result)
 
-    status(result) shouldEqual OK
+    status(result) shouldEqual CREATED
     bodyText should include(payloadBuilder.uid)
     verify(service, times(1)).ingest(any[String])
   }

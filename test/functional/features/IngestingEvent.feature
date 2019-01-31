@@ -1,5 +1,5 @@
 Feature: Identify and Extract Device Log
-  In order to have the devices logs saved and information extracted
+  In order to have the devices information extracted and saved
   I as a Vision Customer
   I want device logs to be processed and stored
 

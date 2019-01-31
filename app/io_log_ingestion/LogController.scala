@@ -21,7 +21,7 @@ class LogController @Inject()(service: LogIngestionService) extends Controller w
         logger.info(s"Received json message '$payload'")
         service
           .ingest(payload.toString)
-          .map(deviceLogRecord => Ok(Json.toJson(deviceLogRecord)))
+          .map(deviceLogRecord => Created(Json.toJson(deviceLogRecord)))
       case _ => Future { BadRequest(Json.toJson(Map("message" -> "Invalid request payload!"))) }
     }
   }

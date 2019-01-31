@@ -18,7 +18,6 @@ pipelines:
         caches:
           - sbt
           - ivy2
-        size: 2x
         script:
           - ./scripts/wait_for.sh $MONGODB_HOST $MONGODB_PORT
           - sbt coverage unit integration
@@ -26,22 +25,21 @@ pipelines:
         services:
           - mongo
 
-#    - step:
-#        name: Functional Testing
-#        caches:
-#          - sbt
-#          - ivy2
-#        size: 2x
-#        script:
-#          - sbt dist
-#          - unzip target/universal/io_log_ingestion_manager-1.0.zip -d .
-#          - io_log_ingestion_manager-1.0/bin/io_log_ingestion_manager -Dhttp.port=$IO_LOG_INGESTION_MANAGER_PORT -Dconfig.file=io_log_ingestion_manager-1.0/conf/application-functional.conf &
-#          - ./scripts/wait_for.sh $IO_LOG_INGESTION_MANAGER_HOST $IO_LOG_INGESTION_MANAGER_PORT
-#          - env JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
-#        artifacts:
-#          - io_log_ingestion_manager-1.0/**
-#        services:
-#          - mongo
+    - step:
+        name: Functional Testing
+        caches:
+          - sbt
+          - ivy2
+        script:
+          - sbt dist
+          - unzip target/universal/io_log_ingestion_manager-1.0.zip -d .
+          - io_log_ingestion_manager-1.0/bin/io_log_ingestion_manager -Dhttp.port=$IO_LOG_INGESTION_MANAGER_PORT -Dconfig.file=io_log_ingestion_manager-1.0/conf/application-functional.conf &
+          - ./scripts/wait_for.sh $IO_LOG_INGESTION_MANAGER_HOST $IO_LOG_INGESTION_MANAGER_PORT
+          - env JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
+        artifacts:
+          - io_log_ingestion_manager-1.0/**
+        services:
+          - mongo
 
 #    - step:
 #        name: Publish Artifact
