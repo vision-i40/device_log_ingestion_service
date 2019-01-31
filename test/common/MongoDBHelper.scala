@@ -52,6 +52,12 @@ object MongoDBHelper extends DeviceLogRecordBSONHandler {
     }
   }
 
+  def countDeviceLogs: Future[Int] = {
+    collectionConnection.flatMap { collection =>
+      collection.count(Some(BSONDocument()))
+    }
+  }
+
   private def getCollectionConnection: Future[BSONCollection] = {
     Future.fromTry(parsedUri.map(driver.connection))
       .flatMap(_.database(config.db))

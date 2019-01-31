@@ -38,17 +38,19 @@ class IngestionEventStep extends ScalaDsl with Matchers with HttpVerbs with EN w
 
   private var deviceLogRecordResponse: Option[DeviceLogRecord] = None
   private var storedWiseDeviceLog: Option[DeviceLogRecord] = None
-  private var storedUnknownDeviceLog: Option[DeviceLogRecord] = None
+  private var unknownDeviceRequestResponse: Option[HttpResponse[String]] = None
 
   Given("""^the service is up and running$""") { () =>
-    MongoDBHelper.reset
-
     val response: HttpResponse[String] = Http(MANAGER_URL).asString
 
     response.code shouldEqual 200
   }
 
-  When("""^I receive a request from Wise device$""") { () =>
+  And("""^database is clear$""") { () =>
+    MongoDBHelper.reset
+  }
+
+  When("""^A request is received from Wise device$""") { () =>
     val response: HttpResponse[String] = Http(DEVICE_LOG_INGESTION_URL)
                                           .postData(wiseRawLog)
                                           .header("content-type", "application/json")
@@ -57,7 +59,7 @@ class IngestionEventStep extends ScalaDsl with Matchers with HttpVerbs with EN w
     deviceLogRecordResponse = Try(Json.parse(response.body).as[DeviceLogRecord]).toOption
   }
 
-  Then("""^I should save Wise Device Log in database$""") { () =>
+  Then("""^Wise Device Log should be saved in database$""") { () =>
     eventually(timeout(10 seconds), interval(100 millis)) {
       deviceLogRecordResponse.isDefined shouldEqual true
 
@@ -82,5 +84,21 @@ class IngestionEventStep extends ScalaDsl with Matchers with HttpVerbs with EN w
       logDateTime = wiseJsonLogBuilder.TIM,
       channelInputs = Map("channel_1" -> firstChannelInput.toString, "channel_2" -> secondChannelInput.toString)
     ))
+  }
+
+  When("""^a request with unrecognized payload$""") { () =>
+    unknownDeviceRequestResponse = Some(Http(DEVICE_LOG_INGESTION_URL)
+                                        .postData(unknownRawLog)
+                                        .header("content-type", "application/json")
+                                        .asString)
+  }
+
+  And("""^the log should not be saved in the database$""") { () =>
+    MongoDBHelper.countDeviceLogs shouldEqual 0
+  }
+
+  And("""^should answer with a bad request response$"""){ () =>
+    unknownDeviceRequestResponse.isDefined shouldEqual true
+    unknownDeviceRequestResponse.get.code shouldEqual BAD_REQUEST
   }
 }
