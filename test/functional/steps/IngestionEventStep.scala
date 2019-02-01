@@ -11,8 +11,8 @@ import org.scalatest.Matchers
 import org.scalatest.concurrent.Eventually.{eventually, interval, timeout}
 import play.api.http.HttpVerbs
 import play.api.libs.json.Json
-import scalaj.http.{Http, HttpResponse}
 import play.api.test.Helpers._
+import scalaj.http.{Http, HttpResponse}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -94,9 +94,7 @@ class IngestionEventStep extends ScalaDsl with Matchers with HttpVerbs with EN w
   }
 
   And("""^the log should not be saved in the database$""") { () =>
-    println("TESTANDO O COUNT")
-//    println(MongoDBHelper.countDeviceLogs.toString.toInt)
-    MongoDBHelper.countDeviceLogs shouldEqual 0
+        MongoDBHelper.countDeviceLogs shouldEqual 0
   }
 
   And("""^should answer with a bad request response$"""){ () =>
