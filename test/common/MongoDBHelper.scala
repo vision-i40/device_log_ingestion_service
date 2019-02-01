@@ -4,8 +4,9 @@ import config.MongoDBConfig
 import infrastructure.mongodb.serialization.DeviceLogRecordBSONHandler
 import io_log_ingestion.DeviceLogRecord
 import reactivemongo.api.collections.bson.BSONCollection
-import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
+import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver, ReadConcern}
 import reactivemongo.bson.BSONDocument
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -52,9 +53,9 @@ object MongoDBHelper extends DeviceLogRecordBSONHandler {
     }
   }
 
-  def countDeviceLogs: Future[Int] = {
+  def countDeviceLogs: Future[Long] = {
     collectionConnection.flatMap { collection =>
-      collection.count(Some(BSONDocument()))
+      collection.count(Some(BSONDocument()), None, 0, None, ReadConcern.Local)
     }
   }
 

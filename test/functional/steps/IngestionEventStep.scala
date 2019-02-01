@@ -94,6 +94,8 @@ class IngestionEventStep extends ScalaDsl with Matchers with HttpVerbs with EN w
   }
 
   And("""^the log should not be saved in the database$""") { () =>
+    println("TESTANDO O COUNT")
+//    println(MongoDBHelper.countDeviceLogs.toString.toInt)
     MongoDBHelper.countDeviceLogs shouldEqual 0
   }
 
