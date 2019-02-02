@@ -62,6 +62,7 @@ class IngestionEventStep extends ScalaDsl with Matchers with HttpVerbs with EN w
   Then("""^Wise Device Log should be saved in database$""") { () =>
     eventually(timeout(10 seconds), interval(100 millis)) {
       deviceLogRecordResponse.isDefined shouldEqual true
+      Await.result(MongoDBHelper.countDeviceLogs, 5 seconds) shouldEqual 1
 
       storedWiseDeviceLog = Await.result(MongoDBHelper.getByDeviceId(deviceLogRecordResponse.get.deviceId), 5 seconds)
     }
@@ -69,9 +70,9 @@ class IngestionEventStep extends ScalaDsl with Matchers with HttpVerbs with EN w
 
   And("""^detect as Wise device$""") { () =>
     storedWiseDeviceLog.isDefined shouldEqual true
-    val actualwiseLogRecord = storedWiseDeviceLog.get
+    val actualWiseLogRecord = storedWiseDeviceLog.get
 
-    actualwiseLogRecord.detectedDevice shouldEqual DeviceType.WISE
+    actualWiseLogRecord.detectedDevice shouldEqual DeviceType.WISE
   }
 
   And("""^extract Wise information$""") { () =>
@@ -94,7 +95,7 @@ class IngestionEventStep extends ScalaDsl with Matchers with HttpVerbs with EN w
   }
 
   And("""^the log should not be saved in the database$""") { () =>
-        MongoDBHelper.countDeviceLogs shouldEqual 0
+    Await.result(MongoDBHelper.countDeviceLogs, 5 seconds) shouldEqual 0
   }
 
   And("""^should answer with a bad request response$"""){ () =>

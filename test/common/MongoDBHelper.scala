@@ -55,7 +55,7 @@ object MongoDBHelper extends DeviceLogRecordBSONHandler {
 
   def countDeviceLogs: Future[Long] = {
     collectionConnection.flatMap { collection =>
-      collection.count(projection, None, 0, None, ReadConcern.Local)
+      collection.count(Some(BSONDocument()), None, 0, None, ReadConcern.Local)
     }
   }
 
