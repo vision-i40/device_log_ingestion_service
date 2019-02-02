@@ -1,5 +1,5 @@
 
-# Io Log Ingestion Manager
+# Device Log Ingestion Service
 
 ### Tech Stack
     - [Scala](https://www.scala-lang.org/)

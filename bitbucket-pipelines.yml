@@ -32,20 +32,20 @@ pipelines:
           - ivy2
         script:
           - sbt dist
-          - unzip target/universal/io_log_ingestion_manager-1.0.zip -d .
-          - io_log_ingestion_manager-1.0/bin/io_log_ingestion_manager -Dhttp.port=$IO_LOG_INGESTION_MANAGER_PORT -Dconfig.file=io_log_ingestion_manager-1.0/conf/application-functional.conf &
+          - unzip target/universal/device_log_ingestion_service-1.0.zip -d .
+          - device_log_ingestion_service-1.0/bin/device_log_ingestion_service -Dhttp.port=$IO_LOG_INGESTION_MANAGER_PORT -Dconfig.file=device_log_ingestion_service-1.0/conf/application-functional.conf &
           - ./scripts/wait_for.sh $IO_LOG_INGESTION_MANAGER_HOST $IO_LOG_INGESTION_MANAGER_PORT
           - env JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
         artifacts:
-          - io_log_ingestion_manager-1.0/**
+          - device_log_ingestion_service-1.0/**
         services:
           - mongo
 
 #    - step:
 #        name: Publish Artifact
 #        script:
-#          - CONTAINER_TAG="gcr.io/$GC_PROJECT_NAME/io_log_ingestion_manager-1.0:$BITBUCKET_COMMIT"
-#          - mv io_log_ingestion_manager-1.0 containers/artifact/
+#          - CONTAINER_TAG="gcr.io/$GC_PROJECT_NAME/device_log_ingestion_service-1.0:$BITBUCKET_COMMIT"
+#          - mv device_log_ingestion_service-1.0 containers/artifact/
 #          - cd containers/artifact/
 #          - docker build -t $CONTAINER_TAG .
 #          - echo $GCR_JSON_KEY > gcr-credential.json

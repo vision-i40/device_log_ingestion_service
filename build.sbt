@@ -1,5 +1,4 @@
-
-name := """io_log_ingestion_manager"""
+name := """device_log_ingestion_service"""
 organization := "com.vision40"
 
 version := "1.0"
