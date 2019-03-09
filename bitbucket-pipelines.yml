@@ -1,5 +1,5 @@
 image:
-   name: gcr.io/rich-atom-211704/scala-sbt:scala-2.12-3
+   name: gcr.io/vision-i40/scala-sbt:scala-2.12
    username: _json_key
    password: '$GCR_JSON_KEY'
 
