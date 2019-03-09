@@ -37,6 +37,7 @@ pipelines:
           - ./scripts/wait_for.sh $IO_LOG_INGESTION_MANAGER_HOST $IO_LOG_INGESTION_MANAGER_PORT
           - env JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
           - kill -9 $(cat device_log_ingestion_service-1.0/RUNNING_PID)
+          - rm -rf device_log_ingestion_service-1.0/RUNNING_PID
         artifacts:
           - device_log_ingestion_service-1.0/**
         services:
@@ -45,7 +46,6 @@ pipelines:
         name: Publish Artifact
         script:
           - CONTAINER_TAG="gcr.io/$GC_PROJECT_NAME/device_log_ingestion_service-1.0:$BITBUCKET_COMMIT"
-          - rm -rf device_log_ingestion_service-1.0/RUNNING_PID
           - mv device_log_ingestion_service-1.0 containers/artifact/
           - cd containers/artifact/
           - docker build -t $CONTAINER_TAG .
@@ -60,7 +60,7 @@ pipelines:
           - echo $GCR_JSON_KEY > gcr-credential.json
           - gcloud auth activate-service-account --key-file gcr-credential.json
           - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region=$GC_REGION --project=$GC_PROJECT_NAME
-          - kubectl set image deployments/iologingestion iologingestion=$CONTAINER_TAG
+          - kubectl set image deployments/device-log-ingestion-service device-log-ingestion-service=$CONTAINER_TAG
 
 options:
   docker: true

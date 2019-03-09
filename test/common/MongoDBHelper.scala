@@ -19,14 +19,6 @@ object MongoDBHelper extends DeviceLogRecordBSONHandler {
   private val parsedUri = MongoConnection.parseURI(config.uri)
   private val collectionConnection = getCollectionConnection
 
-  private val projection = Some(BSONDocument(
-    "deviceId" -> 1,
-    "rawLog" -> 1,
-    "deviceLog" -> 1,
-    "detectedDevice" -> 1,
-    "savedAt" -> 1
-  ))
-
   def reset: Boolean = {
     Await.result(collectionConnection.flatMap(_.drop(failIfNotFound = false)), 10 seconds)
   }
@@ -38,7 +30,7 @@ object MongoDBHelper extends DeviceLogRecordBSONHandler {
   def getLast: Future[Option[DeviceLogRecord]] = {
     collectionConnection.flatMap { collection =>
       collection
-        .find(BSONDocument(), projection)
+        .find(BSONDocument(), deviceLogsProjection)
         .sort(BSONDocument("_id" -> -1))
         .one[DeviceLogRecord]
     }
@@ -47,7 +39,7 @@ object MongoDBHelper extends DeviceLogRecordBSONHandler {
   def getByDeviceId(deviceId: String): Future[Option[DeviceLogRecord]] = {
     collectionConnection.flatMap { collection =>
       collection
-        .find(BSONDocument("deviceId" -> deviceId), projection)
+        .find(BSONDocument("deviceId" -> deviceId), deviceLogsProjection)
         .sort(BSONDocument("_id" -> -1))
         .one[DeviceLogRecord]
     }

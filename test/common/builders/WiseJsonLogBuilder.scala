@@ -20,3 +20,15 @@ case class WiseJsonLogBuilder(
        |}""".stripMargin
   }
 }
+
+/*
+
+{
+  "PE": "a-pe-value",
+  "UID": "09ausd0u1-as908djh01-0as9dj01-123",
+  "MAC": "12:13:14:e4::i7:90",
+  "TIM": "2019-01-01T00:00:00",
+  "Record": ["1", "2", "3"]
+}
+
+ */
