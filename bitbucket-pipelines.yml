@@ -40,18 +40,17 @@ pipelines:
           - device_log_ingestion_service-1.0/**
         services:
           - mongo
-
-#    - step:
-#        name: Publish Artifact
-#        script:
-#          - CONTAINER_TAG="gcr.io/$GC_PROJECT_NAME/device_log_ingestion_service-1.0:$BITBUCKET_COMMIT"
-#          - mv device_log_ingestion_service-1.0 containers/artifact/
-#          - cd containers/artifact/
-#          - docker build -t $CONTAINER_TAG .
-#          - echo $GCR_JSON_KEY > gcr-credential.json
-#          - gcloud auth activate-service-account --key-file gcr-credential.json
-#          - gcloud auth configure-docker --quiet
-#          - docker push $CONTAINER_TAG
+    - step:
+        name: Publish Artifact
+        script:
+          - CONTAINER_TAG="gcr.io/$GC_PROJECT_NAME/device_log_ingestion_service-1.0:$BITBUCKET_COMMIT"
+          - mv device_log_ingestion_service-1.0 containers/artifact/
+          - cd containers/artifact/
+          - docker build -t $CONTAINER_TAG .
+          - echo $GCR_JSON_KEY > gcr-credential.json
+          - gcloud auth activate-service-account --key-file gcr-credential.json
+          - gcloud auth configure-docker --quiet
+          - docker push $CONTAINER_TAG
 
 options:
   docker: true
