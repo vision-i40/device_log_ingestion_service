@@ -45,7 +45,7 @@ pipelines:
         name: Publish Artifact
         script:
           - CONTAINER_TAG="gcr.io/$GC_PROJECT_NAME/device_log_ingestion_service-1.0:$BITBUCKET_COMMIT"
-          - ls device_log_ingestion_service-1.0/
+          - rm -rf device_log_ingestion_service-1.0/RUNNING_PID
           - mv device_log_ingestion_service-1.0 containers/artifact/
           - cd containers/artifact/
           - docker build -t $CONTAINER_TAG .
