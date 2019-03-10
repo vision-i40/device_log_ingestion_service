@@ -19,6 +19,33 @@ class LogController @Inject()(service: LogIngestionService) extends Controller w
   val logger = Logger(getClass)
 
   def add: Action[AnyContent] = Action.async { implicit request =>
+    val log: String = buildLog(request)
+    logger.info(s"Any log received. $log")
+
+    request.body match {
+      case AnyContentAsRaw(raw) =>
+        val fileContent = extractFileContent(raw)
+
+        Future
+          .fromTry(fileContent)
+            .flatMap(service.ingest)
+            .map(deviceLogRecord => Created(Json.toJson(deviceLogRecord)))
+      case AnyContentAsJson(payload) =>
+        logger.info(s"Received json message '$payload'")
+
+        service
+          .ingest(payload.toString)
+          .map(deviceLogRecord => Created(Json.toJson(deviceLogRecord)))
+
+      case _ => Future { BadRequest(Json.toJson(Map("message" -> "Invalid request payload!"))) }
+    }
+  }
+
+  private def extractFileContent(raw: RawBuffer): Try[String] = {
+    Try(Source.fromFile(raw.asFile.getAbsolutePath).getLines.mkString)
+  }
+
+  private def buildLog(request: Request[AnyContent]) = {
     val requestType = request.contentType
     val charset = request.charset
     val acceptedTypes = request.acceptedTypes
@@ -34,29 +61,22 @@ class LogController @Inject()(service: LogIngestionService) extends Controller w
     val log =
       s"""
          |{
-         |  "requestType": "$requestType"
-         |  "charset": "$charset"
-         |  "acceptedTypes": "$acceptedTypes"
-         |  "mediaType": "$mediaType"
-         |  "bodyAsText": "$bodyAsText"
-         |  "bodyAsForm": "$bodyAsForm"
-         |  "bodyAsJson": "$bodyAsJson"
-         |  "bodyAsMultipart": "$bodyAsMultipart"
-         |  "bodyAsXml": "$bodyAsXml"
-         |  "bodyAsRaw": "$bodyAsRaw"
-         |  "bodyAsRawFile": "$bodyAsRawFile"
+         |  "request": "$request",
+         |  "body": "${request.body}",
+         |  "requestType": "$requestType",
+         |  "charset": "$charset",
+         |  "acceptedTypes": "$acceptedTypes",
+         |  "mediaType": "$mediaType",
+         |  "bodyAsText": "$bodyAsText",
+         |  "bodyAsForm": "$bodyAsForm",
+         |  "bodyAsJson": "$bodyAsJson",
+         |  "bodyAsMultipart": "$bodyAsMultipart",
+         |  "bodyAsXml": "$bodyAsXml",
+         |  "bodyAsRaw": "$bodyAsRaw",
+         |  "bodyAsRawFile": "$bodyAsRawFile",
          |  "fileContent": "$fileContent"
          |}
        """.stripMargin
-    logger.info(s"Any log received! $request | ${request.body} | $log")
-    request.body match {
-      case AnyContentAsJson(payload) =>
-        logger.info(s"Received json message '$payload'")
-
-        service
-          .ingest(payload.toString)
-          .map(deviceLogRecord => Created(Json.toJson(deviceLogRecord)))
-      case _ => Future { BadRequest(Json.toJson(Map("message" -> "Invalid request payload!"))) }
-    }
+    log
   }
 }
