@@ -16,9 +16,11 @@ class LogController @Inject()(service: LogIngestionService) extends Controller w
   val logger = Logger(getClass)
 
   def add: Action[AnyContent] = Action.async { implicit request =>
+    logger.info(s"Any log received!")
     request.body match {
       case AnyContentAsJson(payload) =>
         logger.info(s"Received json message '$payload'")
+
         service
           .ingest(payload.toString)
           .map(deviceLogRecord => Created(Json.toJson(deviceLogRecord)))
