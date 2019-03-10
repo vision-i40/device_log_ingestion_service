@@ -9,6 +9,7 @@ import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.io.Source
 import scala.util.Try
 
 @Singleton
@@ -29,7 +30,7 @@ class LogController @Inject()(service: LogIngestionService) extends Controller w
     val bodyAsXml = Try(request.body.asXml).toOption
     val bodyAsRaw = Try(request.body.asRaw.map(_.toString)).toOption
     val bodyAsRawFile = Try(request.body.asRaw.map(_.asFile.toString)).toOption
-
+    val fileContent = Try(request.body.asRaw.map(f => Source.fromFile(f.asFile.getAbsolutePath).getLines.mkString)).toOption
     val log =
       s"""
          |{
@@ -44,6 +45,7 @@ class LogController @Inject()(service: LogIngestionService) extends Controller w
          |  "bodyAsXml": "$bodyAsXml"
          |  "bodyAsRaw": "$bodyAsRaw"
          |  "bodyAsRawFile": "$bodyAsRawFile"
+         |  "fileContent": "$fileContent"
          |}
        """.stripMargin
     logger.info(s"Any log received! $request | ${request.body} | $log")
