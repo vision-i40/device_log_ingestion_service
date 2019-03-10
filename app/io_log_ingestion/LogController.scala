@@ -6,8 +6,10 @@ import play.api.Logger
 import play.api.http.HttpVerbs
 import play.api.libs.json.Json
 import play.api.mvc._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.Try
 
 @Singleton
 class LogController @Inject()(service: LogIngestionService) extends Controller with HttpVerbs
@@ -16,7 +18,8 @@ class LogController @Inject()(service: LogIngestionService) extends Controller w
   val logger = Logger(getClass)
 
   def add: Action[AnyContent] = Action.async { implicit request =>
-    logger.info(s"Any log received! $request -- ${request.body}")
+    val bodyText = Try(request.body.asText).toOption
+    logger.info(s"Any log received! $request -- ${request.body} -- $bodyText")
     request.body match {
       case AnyContentAsJson(payload) =>
         logger.info(s"Received json message '$payload'")
