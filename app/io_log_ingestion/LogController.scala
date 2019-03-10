@@ -18,8 +18,35 @@ class LogController @Inject()(service: LogIngestionService) extends Controller w
   val logger = Logger(getClass)
 
   def add: Action[AnyContent] = Action.async { implicit request =>
-    val bodyText = Try(request.body.asText).toOption
-    logger.info(s"Any log received! $request -- ${request.body} -- $bodyText")
+    val requestType = request.contentType
+    val charset = request.charset
+    val acceptedTypes = request.acceptedTypes
+    val mediaType = request.mediaType
+    val bodyAsText = Try(request.body.asText).toOption
+    val bodyAsForm = Try(request.body.asFormUrlEncoded).toOption
+    val bodyAsJson = Try(request.body.asJson).toOption
+    val bodyAsMultipart = Try(request.body.asMultipartFormData).toOption
+    val bodyAsXml = Try(request.body.asXml).toOption
+    val bodyAsRaw = Try(request.body.asRaw.map(_.toString)).toOption
+    val bodyAsRawFile = Try(request.body.asRaw.map(_.asFile.toString)).toOption
+
+    val log =
+      s"""
+         |{
+         |  "requestType": "$requestType"
+         |  "charset": "$charset"
+         |  "acceptedTypes": "$acceptedTypes"
+         |  "mediaType": "$mediaType"
+         |  "bodyAsText": "$bodyAsText"
+         |  "bodyAsForm": "$bodyAsForm"
+         |  "bodyAsJson": "$bodyAsJson"
+         |  "bodyAsMultipart": "$bodyAsMultipart"
+         |  "bodyAsXml": "$bodyAsXml"
+         |  "bodyAsRaw": "$bodyAsRaw"
+         |  "bodyAsRawFile": "$bodyAsRawFile"
+         |}
+       """.stripMargin
+    logger.info(s"Any log received! $request | ${request.body} | $log")
     request.body match {
       case AnyContentAsJson(payload) =>
         logger.info(s"Received json message '$payload'")
