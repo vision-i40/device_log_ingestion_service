@@ -7,7 +7,7 @@ services:
   - mongodb
 
 before_install:
-  - apt-get -y install netcat unzip
+  - sudo apt-get -y install netcat unzip
 
 addons:
   apt:
