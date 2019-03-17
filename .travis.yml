@@ -5,9 +5,17 @@ scala:
 
 services:
   - mongodb
+  - docker
 
 before_install:
-  - sudo apt-get -y install netcat unzip
+  - sudo apt-get -y install netcat unzip apt-transport-https kubectl
+  - curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+  - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
+  - curl -sSL https://sdk.cloud.google.com | bash
+  - export PATH=$PATH:/root/google-cloud-sdk/bin
+
+env:
+  - CONTAINER_TAG="gcr.io/$GC_PROJECT_NAME/device_log_ingestion_service-1.0:T$RAVIS_COMMIT"
 
 addons:
   apt:
@@ -26,6 +34,17 @@ jobs:
     - name: "Functional Tests"
       script:
         - sbt dist
+        - unzip target/universal/device_log_ingestion_service-1.0.zip -d .
         - device_log_ingestion_service-1.0/bin/device_log_ingestion_service -Dhttp.port=9000 -Dconfig.file=device_log_ingestion_service-1.0/conf/application-functional.conf &
         - ./scripts/wait_for.sh localhost 9000
         - env JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
+    - stage: "Deploy to Staging"
+      name: "Publish Docker container and deploying to Staging"
+      script:
+        - docker build -t $CONTAINER_TAG .
+        - echo $GCR_JSON_KEY > gcr-credential.json
+        - gcloud auth activate-service-account --key-file gcr-credential.json
+        - gcloud auth configure-docker --quiet
+        - docker push $CONTAINER_TAG
+        - gcloud container clusters get-credentials $GKE_CLUSTER_NAME --region=$GC_REGION --project=$GC_PROJECT_NAME
+        - kubectl set image deployments/$GKE_DEPLOYMENT $GKE_DEPLOYMENT=$CONTAINER_TAG
