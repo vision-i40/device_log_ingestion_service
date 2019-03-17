@@ -42,7 +42,7 @@ jobs:
       name: "Publish Docker container and deploying to Staging"
       script:
         - docker build -t $CONTAINER_TAG .
-        - echo $GCR_JSON_KEY > gcr-credential.json
+        - echo $GCR_JSON_KEY | base64 -d > gcr-credential.json
         - gcloud auth activate-service-account --key-file gcr-credential.json
         - gcloud auth configure-docker --quiet
         - docker push $CONTAINER_TAG
