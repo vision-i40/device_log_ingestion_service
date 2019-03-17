@@ -12,7 +12,9 @@ before_install:
   - sudo echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
   - sudo apt-get update
   - sudo apt-get -y install netcat unzip apt-transport-https kubectl
-  - sudo curl -sSL https://sdk.cloud.google.com | bash
+  - sudo curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/install_google_cloud_sdk.bash --output install.bash
+  - sudo chmod +x install.bash
+  - ./install.bash --disable-prompts
   - export PATH=$PATH:/root/google-cloud-sdk/bin
 
 env:
