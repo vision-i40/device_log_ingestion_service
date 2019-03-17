@@ -4,9 +4,9 @@
 [![Build Status](https://travis-ci.com/vision-i40/device_log_ingestion_service.svg?branch=master)](https://travis-ci.com/vision-i40/device_log_ingestion_service)
 
 ### Tech Stack
-    - [Scala](https://www.scala-lang.org/)
-    - [SBT](https://www.scala-sbt.org/)
-    - [Docker](https://www.docker.com/)
+- [Scala](https://www.scala-lang.org/)
+- [SBT](https://www.scala-sbt.org/)
+- [Docker](https://www.docker.com/)
 
 ### Running
 Before run the application, setup dependencies:

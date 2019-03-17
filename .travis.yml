@@ -6,6 +6,25 @@ scala:
 services:
   - mongodb
 
-script:
-  - sbt unit
-  - sbt integration
+before_install:
+  - apt-get -y install netcat unzip
+
+addons:
+  apt:
+    update: true
+
+jobs:
+  include:
+    - stage: "Tests"
+      name: "Unit Tests"
+      script:
+        - sbt unit
+    - name: "Integration Tests"
+      script:
+        - sbt coverage unit integration
+        - sbt coverageReport
+    - name: "Functional Tests"
+        - sbt dist
+        - device_log_ingestion_service-1.0/bin/device_log_ingestion_service -Dhttp.port=9000 -Dconfig.file=device_log_ingestion_service-1.0/conf/application-functional.conf &
+        - ./scripts/wait_for.sh localhost 9000
+        - env JAVA_OPTS="-Dconfig.resource=application-functional.conf" sbt cucumber
