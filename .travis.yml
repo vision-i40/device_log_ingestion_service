@@ -24,6 +24,7 @@ jobs:
         - sbt coverage unit integration
         - sbt coverageReport
     - name: "Functional Tests"
+      script:
         - sbt dist
         - device_log_ingestion_service-1.0/bin/device_log_ingestion_service -Dhttp.port=9000 -Dconfig.file=device_log_ingestion_service-1.0/conf/application-functional.conf &
         - ./scripts/wait_for.sh localhost 9000
