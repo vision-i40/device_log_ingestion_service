@@ -8,10 +8,11 @@ services:
   - docker
 
 before_install:
+  - sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+  - sudo echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
+  - sudo apt-get update
   - sudo apt-get -y install netcat unzip apt-transport-https kubectl
-  - curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
-  - echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list
-  - curl -sSL https://sdk.cloud.google.com | bash
+  - sudo curl -sSL https://sdk.cloud.google.com | bash
   - export PATH=$PATH:/root/google-cloud-sdk/bin
 
 env:
