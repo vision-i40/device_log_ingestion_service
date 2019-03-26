@@ -2,7 +2,7 @@ package integration.infrastructure.mongodb
 
 import common.MongoDBHelper
 import common.builders.DeviceLogRecordBuilder
-import config.MongoDBConfig
+import infrastructure.config.MongoDBConfig
 import infrastructure.mongodb.Connection
 import infrastructure.mongodb.serialization.DeviceLogRecordBSONHandler
 import org.scalatest.{AsyncFlatSpec, Matchers}

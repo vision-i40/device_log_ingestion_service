@@ -1,6 +1,6 @@
 package infrastructure.mongodb
 
-import config.MongoDBConfig
+import infrastructure.config.MongoDBConfig
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.api.{DefaultDB, MongoConnection, MongoDriver}
 

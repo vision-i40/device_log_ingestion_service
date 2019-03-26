@@ -1,6 +1,6 @@
 package common
 
-import config.MongoDBConfig
+import infrastructure.config.MongoDBConfig
 import infrastructure.mongodb.serialization.DeviceLogRecordBSONHandler
 import io_log_ingestion.DeviceLogRecord
 import reactivemongo.api.collections.bson.BSONCollection

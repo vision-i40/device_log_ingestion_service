@@ -1,7 +1,9 @@
 name := """device_log_ingestion_service"""
-organization := "com.vision40"
 
 version := "1.0"
+
+resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
+resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 
 lazy val UnitTestConf = config("unit") extend Test
 lazy val IntegrationTestConf = config("integration") extend Test
@@ -11,7 +13,6 @@ scalaVersion := "2.11.11"
 libraryDependencies += filters
 libraryDependencies ++=Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "2.0.1" % Test,
-  "com.rabbitmq" % "amqp-client" % "5.3.0",
   "org.reactivemongo" %% "reactivemongo" % "0.16.0",
   "org.reactivemongo" %% "reactivemongo-play-json" % "0.16.0-play25",
   "com.typesafe.play" %% "play-json-joda" % "2.6.0-RC1",

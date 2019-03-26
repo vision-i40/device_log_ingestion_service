@@ -1,7 +1,7 @@
-package unit.config
+package unit.infrastructure.config
 
 import com.typesafe.config.Config
-import config.MongoDBConfig
+import infrastructure.config.MongoDBConfig
 import org.mockito.Mockito
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
